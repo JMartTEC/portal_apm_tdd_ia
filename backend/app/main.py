@@ -2214,6 +2214,63 @@ def tdd2_sembrar(payload: dict = Body(...)):
     return {"ok": True, **resultado}
 
 
+@app.post("/api/tdd2/sembrar-subidos")
+def tdd2_sembrar_subidos(payload: dict = Body(...)):
+    """Siembra la referencia con TDD Nivel 2 subidos desde el navegador.
+
+    Sirve cuando el portal corre en un servidor (Render) donde no estan los
+    TDD Nivel 2 reales en CARPETA_REFERENCIA_TDD2: la persona los sube, se
+    copian a esa carpeta y se siembran igual que con «Sembrar». Solo acepta
+    archivos que ya pasaron por /api/conciliar/subir (dentro de
+    CARPETA_SUBIDOS); cualquier otra ruta se rechaza."""
+    libro = _libro(payload.get("ruta_apm", ""))
+    rutas = payload.get("rutas") or []
+    if not isinstance(rutas, list) or not rutas:
+        raise HTTPException(400, "No llego ningun TDD Nivel 2 para sembrar.")
+
+    base_subidos = CARPETA_SUBIDOS.resolve()
+    CARPETA_REFERENCIA_TDD2.mkdir(parents=True, exist_ok=True)
+    copiados: list[str] = []
+    rechazados: list[dict] = []
+    for r in rutas:
+        # Cada elemento puede ser la ruta sola o {"ruta", "nombre"}; el nombre
+        # original evita que se siembre "TDD_X-2.docx" (el sufijo que pone la
+        # subida si el archivo ya existia) como si fuera otro documento.
+        nombre_original = ""
+        if isinstance(r, dict):
+            nombre_original = os.path.basename(str(r.get("nombre") or ""))
+            r = r.get("ruta") or ""
+        origen = Path(str(r).strip().strip('"')).resolve()
+        try:
+            origen.relative_to(base_subidos)
+        except ValueError:
+            rechazados.append({"nombre": origen.name, "motivo": "no es un archivo subido"})
+            continue
+        if not origen.is_file() or origen.suffix.lower() != ".docx":
+            rechazados.append({"nombre": origen.name, "motivo": "no es un .docx"})
+            continue
+        try:
+            es_tdd2 = tdd_nivel2.es_documento_tdd_nivel2(origen)
+        except Exception:
+            es_tdd2 = False
+        if not es_tdd2:
+            rechazados.append({"nombre": origen.name, "motivo": "no parece un TDD Nivel 2"})
+            continue
+        destino_nombre = (nombre_original
+                          if nombre_original.lower().endswith(".docx") else origen.name)
+        shutil.copy2(origen, CARPETA_REFERENCIA_TDD2 / destino_nombre)
+        copiados.append(destino_nombre)
+
+    if not copiados:
+        return {"ok": True, "copiados": [], "rechazados": rechazados,
+                "identificados": [], "sin_identificar": [], "colisiones": {}}
+
+    resultado = _sembrar_tdd2_todos(libro)
+    log.info("TDD2 sembrado desde subidos | %s copiados | %s rechazados | %s identificados",
+             len(copiados), len(rechazados), len(resultado["identificados"]))
+    return {"ok": True, "copiados": copiados, "rechazados": rechazados, **resultado}
+
+
 @app.get("/api/tdd2/referencia")
 def tdd2_referencia():
     """Los aplicativos que ya tienen un TDD Nivel 2 sembrado como referencia,

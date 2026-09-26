@@ -780,3 +780,6 @@ input[type=text] { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospa
   .menu-fila { flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
   .sello-boton.actual::after { display: none; }
 }
+
+/* v4 · botón de subida deshabilitado (Comparar TDD Nivel 2) */
+.btn-archivo[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }

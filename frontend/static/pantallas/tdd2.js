@@ -45,23 +45,68 @@ $("tdd2-subir-doc").addEventListener("change", async (e) => {
 
 /* ---------- 1 · abrir el libro y sembrar la referencia ---------- */
 
-$("tdd2-btn-abrir-apm").addEventListener("click", async () => {
+function habilitarSiembra(si) {
+  $("tdd2-btn-sembrar").disabled = !si;
+  $("tdd2-sembrar-subir").disabled = !si;
+  $("tdd2-lbl-sembrar-subir").setAttribute("aria-disabled", si ? "false" : "true");
+}
+
+async function abrirApmTdd2() {
   errT2("");
   const ruta = $("tdd2-ruta-apm").value.trim().replace(/^"|"$/g, "");
-  if (!ruta) return errT2("Escribe la ruta del archivo .xlsx del APM.");
+  if (!ruta) return errT2("Elige el archivo .xlsx del APM o escribe su ruta.");
   const btn = $("tdd2-btn-abrir-apm");
   btn.disabled = true;
   try {
     await pedir("/api/apm/abrir", json({ ruta }));
-    $("tdd2-btn-sembrar").disabled = false;
+    habilitarSiembra(true);
     abrirEtapa("tdd2-etapa-subir");
     verReferenciaTdd2();
   } catch (e) {
+    habilitarSiembra(false);
     errT2(e.message);
   } finally {
     btn.disabled = false;
   }
+}
+
+$("tdd2-btn-abrir-apm").addEventListener("click", abrirApmTdd2);
+
+/* Subir el APM desde el navegador: indispensable cuando el portal corre en
+   un servidor (Render), donde una ruta C:\... de tu computadora no existe. */
+$("tdd2-subir-apm").addEventListener("change", async (e) => {
+  errT2("");
+  const archivos = [...e.target.files];
+  e.target.value = "";
+  if (!archivos.length) return;
+  try {
+    const guardados = await subir(archivos, "el libro de APM", errT2);
+    if (guardados.length) {
+      $("tdd2-ruta-apm").value = guardados[0].ruta;
+      await abrirApmTdd2();
+    }
+  } catch (err) { errT2(err.message); }
 });
+
+function pintarSiembra(r) {
+  const colisiones = Object.entries(r.colisiones || {});
+  const rechazados = r.rechazados || [];
+  $("tdd2-resumen-siembra").innerHTML = `
+    <div class="aviso-caja">
+      <b>Referencia sembrada.</b>
+      <p>${r.identificados.length} TDD Nivel 2 identificados y adoptados como línea base.</p>
+      ${rechazados.length ? `<p class="nota-alerta">
+        <b>${rechazados.length} no se usaron:</b>
+        ${rechazados.map((s) => `${esc(s.nombre)} (${esc(s.motivo)})`).join(", ")}</p>` : ""}
+      ${r.sin_identificar.length ? `<p class="nota-alerta">
+        <b>${r.sin_identificar.length} no se pudieron identificar:</b>
+        ${r.sin_identificar.map((s) => `${esc(s.nombre)} (${esc(s.motivo)})`).join(", ")}</p>` : ""}
+      ${colisiones.length ? `<p class="nota-alerta">
+        <b>Colisiones -- más de un archivo apuntó al mismo aplicativo:</b>
+        ${colisiones.map(([n, arch]) => `#${esc(n)}: ${arch.map(esc).join(" · ")}`).join(" — ")}</p>` : ""}
+    </div>`;
+  $("tdd2-resumen-siembra").hidden = false;
+}
 
 $("tdd2-btn-sembrar").addEventListener("click", async () => {
   errT2("");
@@ -71,19 +116,12 @@ $("tdd2-btn-sembrar").addEventListener("click", async () => {
   btn.disabled = true;
   try {
     const r = await pedir("/api/tdd2/sembrar", json({ ruta_apm }));
-    const colisiones = Object.entries(r.colisiones || {});
-    $("tdd2-resumen-siembra").innerHTML = `
-      <div class="aviso-caja">
-        <b>Referencia sembrada.</b>
-        <p>${r.identificados.length} TDD Nivel 2 identificados y adoptados como línea base.</p>
-        ${r.sin_identificar.length ? `<p class="nota-alerta">
-          <b>${r.sin_identificar.length} no se pudieron identificar:</b>
-          ${r.sin_identificar.map((s) => `${esc(s.nombre)} (${esc(s.motivo)})`).join(", ")}</p>` : ""}
-        ${colisiones.length ? `<p class="nota-alerta">
-          <b>Colisiones -- más de un archivo apuntó al mismo aplicativo:</b>
-          ${colisiones.map(([n, arch]) => `#${esc(n)}: ${arch.map(esc).join(" · ")}`).join(" — ")}</p>` : ""}
-      </div>`;
-    $("tdd2-resumen-siembra").hidden = false;
+    if (!r.identificados.length && !r.sin_identificar.length) {
+      errT2("En el servidor no hay TDD Nivel 2 de referencia cargados. "
+        + "Usa «Subir TDD Nivel 2 de referencia» para elegirlos desde tu computadora.");
+    } else {
+      pintarSiembra(r);
+    }
     verReferenciaTdd2();
   } catch (e) {
     errT2(e.message);
@@ -92,11 +130,41 @@ $("tdd2-btn-sembrar").addEventListener("click", async () => {
   }
 });
 
+/* Sembrar con TDD Nivel 2 elegidos desde la computadora: se suben y el
+   servidor los adopta como referencia, igual que «Sembrar». */
+$("tdd2-sembrar-subir").addEventListener("change", async (e) => {
+  errT2("");
+  const archivos = [...e.target.files];
+  e.target.value = "";
+  if (!archivos.length) return;
+  const ruta_apm = $("tdd2-ruta-apm").value.trim().replace(/^"|"$/g, "");
+  if (!ruta_apm) return errT2("Abre primero el libro de APM.");
+  const lbl = $("tdd2-lbl-sembrar-subir");
+  const textoOriginal = lbl.innerHTML;
+  lbl.textContent = `Subiendo ${archivos.length} archivo(s)…`;
+  try {
+    const guardados = await subir(archivos, "los TDD Nivel 2", errT2);
+    if (!guardados.length) return;
+    lbl.textContent = "Sembrando…";
+    const r = await pedir("/api/tdd2/sembrar-subidos",
+      json({ ruta_apm, rutas: guardados.map((g) => ({ ruta: g.ruta, nombre: g.nombre })) }));
+    pintarSiembra(r);
+    verReferenciaTdd2();
+  } catch (err) {
+    errT2(err.message);
+  } finally {
+    lbl.innerHTML = textoOriginal;
+  }
+});
+
 async function verReferenciaTdd2() {
   try {
     const r = await pedir("/api/tdd2/referencia");
     const lista = r.habilitadores || [];
     const conRef = lista.filter((h) => h.tdd2_nombre);
+    // Sin aplicativos sembrados en la base (p. ej. un servidor recién creado)
+    // el conteo saldría 0 y 0: mejor no mostrarlo.
+    if (!lista.length) { $("tdd2-resumen-referencia").hidden = true; return; }
     $("tdd2-resumen-referencia").innerHTML = `
       <div class="resumen">
         <div class="dato"><b>${conRef.length}</b><span>con TDD Nivel 2 de referencia</span></div>
