@@ -1,0 +1,69 @@
+<section class="bloque paso" id="paso-5">
+  <h2>Llenado de APM</h2>
+  <p class="nota">
+    Las columnas reales del APM para el aplicativo con el que este documento
+    quedó identificado, comparadas contra lo que el libro de APM ya tiene.
+    <b>Nada aquí se inventa:</b> si no se identificó a qué aplicativo
+    pertenece el documento, los 45 campos se muestran igual (llenos y en
+    falta), y abajo puedes elegir a mano contra cuál aplicativo comparar.
+  </p>
+
+  <div class="candidatos-manual" id="candidatos-manual-5" hidden>
+    <p class="nota">El documento menciona varios habilitadores -- elige el suyo:</p>
+    <ul class="lista-habilitadores" id="lista-candidatos-5"></ul>
+  </div>
+
+  <div class="aplicativo-ref" id="cabecera-modulo5" hidden></div>
+
+  <div class="selector-manual-aplicativo" id="selector-manual-5" hidden>
+    <label for="sel-aplicativo-5">Comparar contra:</label>
+    <select id="sel-aplicativo-5"></select>
+    <button class="btn btn-sec" id="btn-aplicar-manual-5" type="button">Usar este aplicativo</button>
+    <span class="nota" id="nota-manual-5"></span>
+  </div>
+
+  <div class="resumen" id="resumen-llenado-apm"></div>
+
+  <div class="leyenda">
+    <span class="pil e-extraido">Extraído del documento</span>
+    <span class="pil e-heredado">Ya está en el APM</span>
+    <span class="pil e-diferente">El documento dice otra cosa · revisa</span>
+    <span class="pil e-faltante">Falta</span>
+    <span class="pil e-calculado">Calculado (fórmula) · solo lectura</span>
+  </div>
+
+  <div class="acciones acciones-llenado">
+    <button class="btn" id="btn-llenar" type="button">Llenar documento</button>
+    <button class="btn btn-sec" id="btn-ver-cambios" type="button" hidden>Ver antes y después</button>
+    <button class="btn btn-sec" id="btn-deshacer-llenado" type="button" hidden>Deshacer el llenado</button>
+  </div>
+
+  <p class="confirmacion" id="llenado-ok" hidden></p>
+  <p class="confirmacion" id="nueva-version-ok-5" hidden></p>
+  <p class="error" id="nueva-version-error-5" hidden></p>
+
+  <div class="diff" id="diff-llenado" hidden>
+    <h3>Antes y después</h3>
+    <p class="nota">Solo se listan los campos que cambiaron. Lo que ya tenía
+       valor no se tocó: el llenado rellena huecos, no pisa lo escrito.</p>
+    <div class="tabla-envoltura">
+      <table class="tabla" id="tabla-diff">
+        <thead><tr><th>Campo</th><th>Antes</th><th>Después</th><th>De dónde salió</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="ficha-llenado"></div>
+
+  <p class="error" id="error-5" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" href="/paso/4">Atrás</a>
+    <button class="btn btn-sec" id="btn-otro-habilitador-5" type="button">
+      Revisar otro habilitador de este documento</button>
+    <button class="btn-nueva-version" id="btn-nueva-version-5" type="button" disabled
+            title="No hay campos vacíos del libro con un dato nuevo que escribir todavía">
+      Hacer nueva versión</button>
+    <button class="btn" id="btn-continuar-5" type="button">Continuar a TDD</button>
+  </div>
+</section>

@@ -1,0 +1,77 @@
+<section class="bloque paso" id="paso-4">
+  <h2>Revisión y Vectorización</h2>
+
+  <div id="tarjeta-igual-sistema" hidden></div>
+
+  <div class="panel-habilitadores" id="panel-habilitadores" hidden>
+    <p class="nota">Habilitadores encontrados en este lote. Puedes ir pasando de
+       uno a otro sin perder lo que ya corregiste en los demás.</p>
+    <ul class="lista-habilitadores" id="lista-habilitadores"></ul>
+  </div>
+
+  <div class="candidatos-manual" id="candidatos-manual-4" hidden>
+    <p class="nota">El documento menciona varios habilitadores -- elige el suyo:</p>
+    <ul class="lista-habilitadores" id="lista-candidatos-4"></ul>
+  </div>
+
+  <div class="aplicativo-ref" id="aplicativo-ref" hidden></div>
+
+  <div class="selector-manual-aplicativo" id="selector-manual-4" hidden>
+    <label for="sel-aplicativo-4">Comparar contra:</label>
+    <select id="sel-aplicativo-4"></select>
+    <button class="btn btn-sec" id="btn-aplicar-manual-4" type="button">Usar este aplicativo</button>
+    <span class="nota" id="nota-manual-4"></span>
+  </div>
+
+  <details class="alterno" id="det-omitidos" hidden>
+    <summary><span id="n-omitidos">0</span> documentos que no pasaron a revisión</summary>
+    <ul id="lista-omitidos" class="lista-fina"></ul>
+  </details>
+
+  <div class="resumen" id="resumen"></div>
+  <p class="nota" id="nota-campos-ficha">Los campos marcados necesitan tu confirmación. Lo que corrijas
+     aquí es lo que se exporta.</p>
+  <div class="ficha" id="ficha"></div>
+
+  <div class="observaciones" id="observaciones" hidden>
+    <h3>Observaciones</h3>
+    <ul id="lista-observaciones"></ul>
+  </div>
+
+  <div class="fuentes" id="fuentes" hidden>
+    <h3>Información de fuentes institucionales</h3>
+    <p class="nota">Qué aporta este documento al Knowledge Hub, por fuente.
+       El nivel de criticidad viene del catálogo institucional, no del modelo.</p>
+    <div class="fuente-bloque" id="bloque-apm" hidden>
+      <h4>APM <span class="etiqueta">Inventario de Aplicaciones</span></h4>
+      <div class="tabla-envoltura">
+        <table class="tabla" id="tabla-apm">
+          <thead><tr><th>Grupo</th><th>Nivel</th><th>Cobertura</th><th>Detalle</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="fuente-bloque" id="bloque-tdd" hidden>
+      <h4>TDD <span class="etiqueta">Diseño Técnico</span></h4>
+      <div class="tabla-envoltura">
+        <table class="tabla" id="tabla-tdd">
+          <thead><tr><th>Bloque</th><th>Nivel</th><th>Cobertura</th><th>Detalle</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="nota" id="fuentes-vacio" hidden>
+      Este documento no aporta información de APM ni de TDD.</p>
+  </div>
+
+  <div class="diagramas" id="diagramas" hidden>
+    <h3>Diagramas convertidos a texto</h3>
+    <div id="lista-diagramas"></div>
+  </div>
+
+  <p class="error" id="error-4" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" href="/paso/3">Atrás</a>
+    <button class="btn" id="btn-continuar-4" type="button">Continuar al llenado</button>
+  </div>
+</section>

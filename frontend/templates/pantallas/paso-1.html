@@ -1,0 +1,42 @@
+<section class="bloque paso" id="paso-1">
+  <h2>¿Qué quieres clasificar?</h2>
+
+  <div class="modos">
+    <button class="modo activo" id="modo-archivo" type="button">
+      <b>Un documento</b><span>Una ruta o un archivo suelto</span>
+    </button>
+    <button class="modo" id="modo-carpeta" type="button">
+      <b>Una carpeta</b><span>Todos los documentos de un directorio</span>
+    </button>
+  </div>
+
+  <div class="campo-ruta">
+    <label for="ruta" id="ruta-label">Ruta del documento</label>
+    <input type="text" id="ruta" spellcheck="false"
+           placeholder="C:\Users\...\documento.docx">
+    <p class="nota" id="ruta-nota">
+      Pega la ruta completa. En el Explorador: clic derecho sobre el archivo →
+      <em>Copiar como ruta</em>.
+    </p>
+  </div>
+
+  <label class="check" id="check-recursivo" hidden>
+    <input type="checkbox" id="recursivo" checked>
+    Incluir subcarpetas
+  </label>
+
+  <details class="alterno">
+    <summary>O sube el archivo desde el navegador</summary>
+    <input type="file" id="input-archivo">
+    <p class="nota">Útil si el documento no está en este equipo. Se procesa en
+       memoria y se descarta al terminar.</p>
+  </details>
+
+  <p class="nota" id="nota-formatos"></p>
+
+  <p class="error" id="error-1" hidden></p>
+  <div class="acciones">
+    <button class="btn" id="btn-continuar-1" type="button">Continuar</button>
+  </div>
+
+</section>

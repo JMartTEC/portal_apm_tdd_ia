@@ -1,0 +1,86 @@
+<section class="bloque pantalla-config" id="panel-config">
+  <div class="config-encabezado">
+    <div>
+      <h2>Configuración del proveedor</h2>
+      <p class="nota">Esta pantalla está fuera del flujo de consulta. Al guardar
+         vuelves al inicio.</p>
+    </div>
+    <a class="btn-texto" id="btn-cancelar-config" href="/">Cancelar</a>
+  </div>
+  <p class="nota nota-env">Las llaves se guardan en
+     <code id="ruta-env">.env</code>, que está en <code>.gitignore</code> y
+     nunca se sube a ningún repositorio.</p>
+
+  <div class="campo" style="margin-top:18px">
+    <label for="cfg-modo">Proveedor</label>
+    <select id="cfg-modo"></select>
+  </div>
+
+  <!-- ---- Claude API ---- -->
+  <fieldset class="grupo-config" id="grupo-claude">
+    <legend>Claude API</legend>
+
+    <div class="campo">
+      <label for="cfg-key">
+        API key
+        <span class="etiqueta" id="estado-llave">sin llave</span>
+      </label>
+      <input type="password" id="cfg-key" spellcheck="false"
+             autocomplete="off" placeholder="sk-ant-api03-...">
+      <p class="nota">
+        La obtienes en <b>console.anthropic.com → Settings → API keys</b>.
+        Por seguridad, una vez guardada no se vuelve a mostrar: solo verás los
+        primeros y últimos caracteres. Déjala vacía para conservar la actual.
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cfg-workspace">Workspace ID</label>
+      <input type="text" id="cfg-workspace" spellcheck="false"
+             placeholder="wrkspc_...">
+      <p class="nota">
+        Obligatorio si tu token está ligado a una identidad de organización.
+        Sin esto la API responde 400 aunque la llave sea correcta.
+        Está en <b>Settings → Workspaces</b>.
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cfg-modelo-claude">Modelo</label>
+      <select id="cfg-modelo-claude"></select>
+    </div>
+
+    <button class="btn-texto peligro" id="btn-borrar-llave" type="button">
+      Eliminar la llave guardada
+    </button>
+  </fieldset>
+
+  <!-- ---- Ollama ---- -->
+  <fieldset class="grupo-config" id="grupo-ollama">
+    <legend>Local (Ollama)</legend>
+    <div class="ficha">
+      <div class="campo">
+        <label for="cfg-modelo-ollama">Modelo</label>
+        <input type="text" id="cfg-modelo-ollama" spellcheck="false">
+      </div>
+      <div class="campo">
+        <label for="cfg-host">Host</label>
+        <input type="text" id="cfg-host" spellcheck="false">
+      </div>
+      <div class="campo">
+        <label for="cfg-maxchars">Recorte del documento (caracteres)</label>
+        <input type="text" id="cfg-maxchars" spellcheck="false">
+      </div>
+    </div>
+    <p class="nota">Gratis y sin conexión, pero no lee imágenes y es más lento.</p>
+  </fieldset>
+
+  <p class="confirmacion" id="config-ok" hidden></p>
+  <p class="error" id="config-error" hidden></p>
+
+  <div class="acciones">
+    <button class="btn" id="btn-guardar-config" type="button">Guardar y volver</button>
+    <button class="btn btn-sec" id="btn-probar-config" type="button">Probar conexión</button>
+    <a class="btn btn-sec" id="btn-cerrar-config" href="/">Volver sin guardar</a>
+  </div>
+</section>

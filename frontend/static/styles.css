@@ -1,0 +1,667 @@
+/* TEC | Clasificador de Activos IA-Ready v2 */
+
+:root {
+  --azul: #003da5;
+  --azul-osc: #002a72;
+  --azul-claro: #e8f0fb;
+  --tinta: #14213d;
+  --gris: #5b6478;
+  --linea: #d7dEE9;
+  --fondo: #f4f7fb;
+  --ok: #0d7a4f;
+  --alerta: #a8620a;
+  --error: #b3261e;
+  --radio: 10px;
+}
+
+* { box-sizing: border-box; }
+/* ==========================================================================
+   REGLA GLOBAL DE OCULTAMIENTO  —  no borrar
+   ==========================================================================
+   El atributo `hidden` del HTML equivale a `display: none`, pero es una regla
+   del navegador con la especificidad mas baja que existe: CUALQUIER regla
+   nuestra que ponga `display` se la gana. Por eso `.selector-lote { display:
+   grid }` hacia que el selector «Documento» apareciera vacio aunque el HTML
+   decia `hidden`, y por eso `#check-recursivo` y `#campo-tdd-carpeta` tenian
+   el mismo defecto.
+   El proyecto lo venia tapando elemento por elemento (.sello[hidden],
+   .check[hidden], .error[hidden]…), asi que cada elemento nuevo nacia roto.
+   Esta unica regla lo resuelve para todo el documento, presente y futuro.
+   ========================================================================== */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--tinta);
+  background: var(--fondo);
+  line-height: 1.55;
+}
+
+.contenedor { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- cabecera ---------- */
+
+.cabecera {
+  background: linear-gradient(135deg, var(--azul-osc), var(--azul));
+  color: #fff;
+  padding: 26px 0 22px;
+}
+.cabecera-fila { display: flex; justify-content: space-between;
+                 align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.marca { display: flex; gap: 16px; align-items: center; }
+.marca-tec {
+  border: 2px solid rgba(255,255,255,.85);
+  border-radius: 6px; padding: 6px 12px;
+  font-weight: 700; font-size: 22px; letter-spacing: 1px;
+}
+.cabecera h1 { margin: 0; font-size: 23px; font-weight: 600; }
+.cabecera p { margin: 4px 0 0; opacity: .85; font-size: 14px; }
+
+.sellos { display: flex; flex-wrap: wrap; gap: 8px; }
+.sello {
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 999px; padding: 5px 14px; font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* ---------- navegación de pasos ---------- */
+
+.pasos-nav {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin: 18px auto 0; padding-top: 0;
+}
+.paso-chip {
+  flex: 1 1 150px;
+  display: flex; align-items: center; gap: 9px;
+  background: #fff; border: 1px solid var(--linea);
+  border-radius: var(--radio); padding: 10px 14px;
+  font: inherit; font-size: 14px; color: var(--gris);
+  cursor: pointer; text-align: left;
+}
+.paso-chip b {
+  display: grid; place-items: center;
+  width: 24px; height: 24px; flex: 0 0 24px;
+  border-radius: 50%; background: var(--linea);
+  color: #fff; font-size: 13px;
+}
+.paso-chip.activo { border-color: var(--azul); color: var(--azul); font-weight: 600; }
+.paso-chip.activo b { background: var(--azul); }
+.paso-chip.hecho b { background: var(--ok); }
+.paso-chip:hover { border-color: var(--azul); }
+
+/* ---------- bloques ---------- */
+
+.bloque {
+  background: #fff; border: 1px solid var(--linea);
+  border-radius: var(--radio); padding: 26px; margin: 18px 0 26px;
+}
+.bloque h2 { margin: 0 0 18px; font-size: 19px; }
+.bloque h3 { margin: 22px 0 10px; font-size: 15.5px; }
+
+/* ---------- modos ---------- */
+
+.modos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.modo {
+  border: 2px solid var(--linea); border-radius: var(--radio);
+  background: #fff; padding: 16px; cursor: pointer;
+  font: inherit; text-align: left; display: grid; gap: 3px;
+}
+.modo b { font-size: 15px; color: var(--tinta); }
+.modo span { font-size: 13px; color: var(--gris); }
+.modo.activo { border-color: var(--azul); background: var(--azul-claro); }
+
+/* ---------- formularios ---------- */
+
+.campo-ruta { display: grid; gap: 6px; }
+label { font-size: 13.5px; font-weight: 600; color: var(--gris); }
+input[type=text], input:not([type]), select, textarea {
+  width: 100%; padding: 11px 13px;
+  border: 1px solid var(--linea); border-radius: 8px;
+  font: inherit; font-size: 14px; background: #fff; color: var(--tinta);
+}
+input[type=text] { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--azul); outline-offset: 1px; border-color: var(--azul);
+}
+textarea { resize: vertical; }
+
+.nota { font-size: 12.5px; color: var(--gris); margin: 4px 0 0; }
+.aviso { font-size: 13px; color: var(--alerta); margin: 14px 0 0; }
+
+.check { display: flex; align-items: center; gap: 9px;
+         font-weight: 400; font-size: 13.5px; color: var(--tinta); margin-top: 16px; }
+.check input { width: auto; }
+
+.alterno { margin-top: 20px; border-top: 1px solid var(--linea); padding-top: 14px; }
+.alterno summary { cursor: pointer; font-size: 13.5px; color: var(--azul); }
+.alterno input[type=file] { margin-top: 12px; font-size: 13px; }
+
+/* ---------- botones ---------- */
+
+.acciones { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.acciones-tarjeta { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  background: var(--azul); color: #fff; border: 1px solid var(--azul);
+  border-radius: 8px; padding: 11px 20px;
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: var(--azul-osc); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-sec { background: #fff; color: var(--azul); }
+.btn-sec:hover:not(:disabled) { background: var(--azul-claro); }
+
+/* ---------- resumen ---------- */
+
+/* Rejilla y no flex: con flex, el ultimo renglon con una sola ficha la estira
+   a todo lo ancho — asi salia «3 POR REVISAR» como una banda naranja enorme. */
+.resumen { display: grid; gap: 10px; margin-bottom: 18px;
+           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.dato {
+  background: var(--azul-claro);
+  border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px;
+}
+.dato b { font-size: 19px; }
+.dato span { font-size: 12px; color: var(--gris); text-transform: uppercase;
+             letter-spacing: .4px; }
+.dato.alerta { background: #fdf0e0; }
+.dato.alerta b { color: var(--alerta); }
+
+/* ---------- tablas ---------- */
+
+.tabla-envoltura { overflow-x: auto; max-height: 420px; overflow-y: auto;
+                   border: 1px solid var(--linea); border-radius: 8px; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tabla th, .tabla td { text-align: left; padding: 9px 12px;
+                       border-bottom: 1px solid var(--linea); }
+.tabla th { background: var(--fondo); position: sticky; top: 0;
+            font-size: 12.5px; text-transform: uppercase;
+            letter-spacing: .3px; color: var(--gris); }
+.tabla tr:last-child td { border-bottom: none; }
+.fila-error { background: #fdf1f0; }
+
+.etiqueta {
+  display: inline-block; background: var(--azul-claro); color: var(--azul-osc);
+  border-radius: 999px; padding: 2px 9px; font-size: 11.5px; margin-right: 4px;
+}
+.ok-chip { background: #e3f4ec; color: var(--ok); }
+.aviso-chip { background: #fdf0e0; color: var(--alerta); }
+.error-chip { background: #fdecea; color: var(--error); }
+/* Amarillo propio para "Referenciado" (hay dato pero solo lo menciona / apunta
+   a un diagrama u otro documento, sin certeza exacta) -- distinto del naranja
+   de .aviso-chip, que es para "sin informacion" explicito. */
+.ref-chip { background: #fff8e1; color: #8a6d00; }
+
+.lista-fina { font-size: 13px; color: var(--gris); padding-left: 20px; }
+.lista-fina code { font-size: 12px; }
+
+/* --- tarjeta "este archivo es igual al que está en el sistema": vive suelta
+   arriba del todo en el paso 4 (id #tarjeta-igual-sistema), NUNCA escondida
+   dentro del acordeón "N documentos que no pasaron a revisión" -- trae dos
+   botones que hay que ver de inmediato, no detrás de un clic. Con
+   max-width se queda como un cuadro a un lado, no estirada a lo ancho. --- */
+#tarjeta-igual-sistema { margin-bottom: 18px; }
+.omitido-igual { max-width: 340px; margin: 0; padding: 14px 16px;
+    border-radius: 10px; border: 1px solid #a8d5bf; background: #e7f4ed; }
+.omitido-igual-nombre code { font-size: 13.5px; }
+.omitido-igual-fecha { font-size: 12px; color: var(--gris); margin-top: 2px; }
+.omitido-igual-leyenda { margin: 8px 0 10px; font-size: 13.5px; color: var(--ok);
+    font-weight: 600; }
+.omitido-igual-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- progreso ---------- */
+
+.barra { height: 8px; background: var(--linea); border-radius: 99px; overflow: hidden; }
+.barra-relleno { height: 100%; width: 0; background: var(--azul);
+                 transition: width .4s ease; }
+.progreso-texto { font-size: 13.5px; color: var(--gris); margin: 10px 0 18px; }
+
+.pipeline { list-style: none; padding: 0; margin: 0 0 18px;
+            display: grid; gap: 8px; }
+.pipeline li {
+  padding: 9px 14px; border-radius: 8px; font-size: 13.5px;
+  background: var(--fondo); color: var(--gris);
+  border-left: 3px solid var(--linea);
+}
+.pipeline li.activa { background: var(--azul-claro); color: var(--azul-osc);
+                      border-left-color: var(--azul); font-weight: 600; }
+.pipeline li.hecha { border-left-color: var(--ok); color: var(--ok); }
+.pipeline li.fallida { border-left-color: var(--error); color: var(--error);
+                       background: #fdecea; }
+
+/* Linea de detalle debajo del nombre de la etapa: lo que de verdad paso con
+   ESE documento (archivo, extension, cuanto texto/imagenes, etc.) en vez de
+   solo un color. Vacio (sin :empty) no ocupa renglon. */
+.detalle-fase { display: block; font-size: 12px; font-weight: 400;
+                opacity: .8; margin-top: 2px; }
+.detalle-fase:empty { display: none; }
+
+/* ---------- verificacion en vivo (paso 2, un solo documento) ---------- */
+
+.chequeo-vivo { display: grid; gap: 12px; margin: 20px 0 22px; }
+.chequeo-item { display: flex; align-items: center; gap: 11px; font-size: 14.5px;
+                color: var(--gris); transition: color .3s ease; }
+.chequeo-punto { width: 11px; height: 11px; border-radius: 50%; flex: none;
+                 background: var(--linea); transition: background .3s ease; }
+.chequeo-item.activo { color: var(--azul-osc); font-weight: 600; }
+.chequeo-item.activo .chequeo-punto { background: var(--azul);
+                                       animation: chequeo-pulso 1.1s ease-in-out infinite; }
+.chequeo-item.hecho { color: var(--ok); }
+.chequeo-item.hecho .chequeo-punto { background: var(--ok); animation: none; }
+.chequeo-item.alerta { color: var(--alerta); }
+.chequeo-item.alerta .chequeo-punto { background: var(--alerta); animation: none; }
+.chequeo-item.fallido { color: var(--error); }
+.chequeo-item.fallido .chequeo-punto { background: var(--error); animation: none; }
+
+@keyframes chequeo-pulso {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 61, 165, .35); }
+  50% { box-shadow: 0 0 0 7px rgba(0, 61, 165, 0); }
+}
+
+/* ---------- hallazgo en vivo (paso 3, mientras clasifica) ---------- */
+
+.hallazgo-vivo { margin: -4px 0 18px; font-size: 13.5px; color: var(--gris);
+                 display: flex; align-items: center; gap: 8px; min-height: 22px;
+                 opacity: 0; transform: translateY(-3px);
+                 transition: opacity .35s ease, transform .35s ease; }
+.hallazgo-vivo.visible { opacity: 1; transform: translateY(0); }
+
+/* ---------- ficha ---------- */
+
+/* ---------- panel fijo de habilitadores (paso 4) ---------- */
+.panel-habilitadores { margin-bottom: 18px; }
+.panel-habilitadores > .nota { margin: 0 0 8px; }
+.lista-habilitadores { display: flex; flex-wrap: wrap; gap: 8px; margin: 0;
+                        padding: 0; list-style: none; }
+.item-habilitador { display: flex; align-items: center; gap: 8px;
+                     padding: 7px 12px; border: 1px solid var(--linea);
+                     border-radius: 999px; background: #fff; cursor: pointer;
+                     font-size: 13.5px; transition: border-color .15s ease,
+                     background .15s ease; }
+.item-habilitador:hover { border-color: var(--azul); }
+.item-habilitador.activo { border-color: var(--azul); background: var(--azul-claro);
+                            font-weight: 600; }
+.item-habilitador .lh-estado { font-size: 11px; color: var(--gris);
+                                border-radius: 999px; padding: 1px 8px;
+                                background: var(--fondo); }
+.item-habilitador.revisado .lh-estado { color: var(--ok); background: #e3f4ec; }
+.ficha { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+         gap: 14px; margin-top: 6px; }
+.campo { display: grid; gap: 5px; }
+.campo.en-revision input, .campo.en-revision select, .campo.en-revision textarea {
+  border-color: var(--alerta); background: #fffaf3;
+}
+.campo label { display: flex; align-items: center; gap: 8px; }
+.nivel { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 1px 8px; }
+.n-alta { background: #e3f4ec; color: var(--ok); }
+.n-media { background: var(--azul-claro); color: var(--azul-osc); }
+.n-requiere-revision { background: #fdf0e0; color: var(--alerta); }
+
+.observaciones { background: #fffaf3; border: 1px solid #f0dcc0;
+                 border-radius: 8px; padding: 14px 18px; margin-top: 22px; }
+.observaciones ul { margin: 0; padding-left: 20px; font-size: 13.5px; }
+
+.diagramas { margin-top: 22px; }
+.diagrama { border: 1px solid var(--linea); border-radius: 8px;
+            padding: 14px 16px; margin-bottom: 10px; background: var(--fondo); }
+.diagrama h4 { margin: 0 0 6px; font-size: 14.5px; }
+.diagrama p { margin: 0 0 6px; font-size: 13.5px; }
+
+/* ---------- exportación ---------- */
+
+.export-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+               gap: 14px; }
+.export-tarjeta { border: 1px solid var(--linea); border-radius: var(--radio);
+                  padding: 18px; background: var(--fondo); }
+.export-tarjeta.destacada { border-color: var(--azul); background: var(--azul-claro); }
+.export-tarjeta h3 { margin: 0 0 8px; font-size: 16px; }
+.export-tarjeta p { font-size: 13.5px; color: var(--gris); margin: 0; }
+.export-tarjeta code { background: rgba(0,0,0,.06); border-radius: 4px;
+                       padding: 1px 5px; font-size: 12.5px; }
+
+.guardar-disco { margin-top: 24px; border-top: 1px solid var(--linea);
+                 padding-top: 20px; display: grid; gap: 6px; }
+.guardar-disco .btn { justify-self: start; margin-top: 10px; }
+
+.vista-previa { margin-top: 22px; }
+.vista-previa summary { cursor: pointer; font-size: 13.5px; color: var(--azul); }
+.vista-previa pre {
+  background: #1b2437; color: #e6edf7; border-radius: 8px;
+  padding: 16px; overflow: auto; max-height: 420px;
+  font-size: 12.5px; line-height: 1.5; white-space: pre-wrap;
+}
+
+/* ---------- mensajes ---------- */
+
+.error { color: var(--error); background: #fdecea; border-radius: 8px;
+         padding: 11px 14px; font-size: 13.5px; margin: 16px 0 0; }
+.confirmacion { color: var(--ok); background: #e3f4ec; border-radius: 8px;
+                padding: 11px 14px; font-size: 13.5px; margin: 16px 0 0; }
+
+@media (max-width: 640px) {
+  .modos { grid-template-columns: 1fr; }
+  .bloque { padding: 20px 16px; }
+}
+
+/* ---------- fuentes institucionales (APM / TDD) ---------- */
+.fuentes { margin-top: 24px; border-top: 1px solid var(--linea); padding-top: 18px; }
+.fuente-bloque { margin-top: 16px; }
+.fuente-bloque h4 { margin: 0 0 8px; font-size: 15px;
+                    display: flex; align-items: center; gap: 8px; }
+.nivel-critico { background: #fdecea; color: var(--error); }
+.nivel-importante { background: #fdf0e0; color: var(--alerta); }
+.nivel-complementario { background: var(--fondo); color: var(--gris); }
+
+/* ---------- panel de configuración ---------- */
+.sello-boton { cursor: pointer; font: inherit; font-size: 12.5px;
+               background: rgba(255,255,255,.12); color: #fff; }
+.sello-boton:hover { background: rgba(255,255,255,.25); }
+
+.grupo-config {
+  border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 16px 18px 18px; margin-top: 18px;
+}
+.grupo-config legend { font-size: 13px; font-weight: 600; color: var(--gris);
+                       padding: 0 8px; text-transform: uppercase;
+                       letter-spacing: .4px; }
+.grupo-config .campo { margin-bottom: 14px; }
+.grupo-config.apagado { opacity: .45; }
+.grupo-config.apagado input, .grupo-config.apagado select { pointer-events: none; }
+
+.btn-texto { background: none; border: none; font: inherit; font-size: 13px;
+             color: var(--azul); cursor: pointer; padding: 0; }
+.btn-texto.peligro { color: var(--error); }
+.btn-texto:hover { text-decoration: underline; }
+
+/* ---------- configuración como pantalla aparte ---------- */
+.pantalla-config { border-top: 3px solid var(--azul); }
+.config-encabezado { display: flex; justify-content: space-between;
+                     align-items: flex-start; gap: 16px; margin-bottom: 4px; }
+.config-encabezado h2 { margin-bottom: 4px; }
+.nota-env { margin-bottom: 18px; }
+.sello-boton.activo { background: #fff; color: var(--azul-osc); font-weight: 600; }
+
+/* ==========================================================================
+   PASO 5 · LLENADO APM / TDD
+   El color es la interfaz: sin leer una linea se ve que trajo el documento y
+   que hay que ir a buscar. Verde = ya hay un dato real (lo trae el documento o
+   ya estaba en el APM); ambar = el documento toca el tema pero discrepa o solo
+   lo menciona sin dar el dato; rojo = no hay nada.
+   ========================================================================== */
+
+.leyenda { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.pil { font-size: 12px; padding: 3px 10px; border-radius: 999px;
+       border: 1px solid transparent; }
+.pil.e-propuesto    { background: #fff; color: #5b6478; border-color: #ccd2dd;
+                      border-style: dashed; }
+.pil.e-extraido     { background: #e7f4ed; color: var(--ok); border-color: #a8d5bf; }
+.pil.e-heredado     { background: #e7f4ed; color: var(--ok); border-color: #a8d5bf;
+                      border-style: dashed; }
+.pil.e-referenciado { background: #fdf4e3; color: #8a5b00; border-color: #e6c67a; }
+.pil.e-diferente    { background: #fdf4e3; color: #8a5b00; border-color: #e6c67a; }
+.pil.e-faltante     { background: #fdecea; color: var(--error); border-color: #f0b4ae; }
+.pil.e-calculado    { background: var(--azul-claro); color: var(--azul-osc); border-color: #a9c3e8; }
+
+.acciones-llenado { margin: 10px 0 0; }
+
+.pestanas { display: flex; gap: 6px; margin: 22px 0 0;
+            border-bottom: 2px solid var(--azul-claro); }
+.pestana { background: none; border: none; border-bottom: 3px solid transparent;
+           font: inherit; font-size: 14px; font-weight: 600; color: var(--gris);
+           padding: 10px 16px; cursor: pointer; margin-bottom: -2px; }
+.pestana:hover { color: var(--azul); }
+.pestana.activo { color: var(--azul); border-bottom-color: var(--azul); }
+
+.grupo-ficha { margin-top: 22px; }
+.grupo-ficha h4 { margin: 0 0 10px; font-size: 14.5px;
+                  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.rejilla-campos { display: grid; gap: 12px;
+                  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+.campo-llenado { display: flex; flex-direction: column; gap: 4px;
+                 padding: 10px 12px; border-radius: 8px;
+                 border: 1px solid #e2e6ee; background: #fff; }
+.campo-llenado label { font-size: 12.5px; }
+.campo-llenado input { width: 100%; }
+.marca-estado { font-size: 11.5px; font-weight: 600; text-transform: uppercase;
+                letter-spacing: .3px; }
+.evidencia { font-size: 11.5px; color: var(--gris); font-style: italic;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- propuesto: hay candidato pero todavia no se aplica. La casilla se ve
+       vacia con el valor de marca de agua: eso es el "antes". --- */
+.campo-llenado.est-propuesto { background: #fff; border-color: #c3cad8;
+                               border-style: dashed; }
+.campo-llenado.est-propuesto .marca-estado { color: #6b7488; }
+.campo-llenado.est-propuesto input::placeholder { color: #7b8398; font-style: italic; }
+
+/* --- verde: ya hay un dato real, con respaldo (lo trae el documento o ya
+       estaba en el APM) --- */
+.campo-llenado.est-extraido,
+.campo-llenado.est-heredado { background: #e7f4ed; border-color: #a8d5bf; }
+.campo-llenado.est-extraido .marca-estado,
+.campo-llenado.est-heredado .marca-estado { color: var(--ok); }
+.campo-llenado.est-heredado { border-style: dashed; }
+
+/* --- ambar: el documento lo menciona, falta el dato --- */
+.campo-llenado.est-referenciado { background: #fffaf0; border-color: #e6c67a; }
+.campo-llenado.est-referenciado .marca-estado { color: #8a5b00; }
+
+/* --- ambar: el APM ya tiene un valor y el documento dice otra cosa; nunca se
+       resuelve solo, se deja marcado para que alguien lo revise --- */
+.campo-llenado.est-diferente { background: #fffaf0; border-color: #e6c67a; }
+.campo-llenado.est-diferente .marca-estado { color: #8a5b00; }
+
+/* --- rojo: no hay nada --- */
+.campo-llenado.est-faltante { background: #fef7f6; border-color: #f0b4ae; }
+.campo-llenado.est-faltante .marca-estado { color: var(--error); }
+
+/* --- azul: lo escribio una persona; gana sobre cualquier propuesta --- */
+.campo-llenado.est-manual { background: var(--azul-claro); border-color: #a9c3e8; }
+.campo-llenado.est-manual .marca-estado { color: var(--azul); }
+
+/* --- gris azulado: columna de formula, solo lectura. No es un color de la
+       comparacion (no es "bueno" ni "malo"), es informativo -- por eso un tono
+       mas apagado que el azul de "manual". --- */
+.campo-llenado.est-calculado { background: #eef0f4; border-color: #a9c3e8; }
+.campo-llenado.est-calculado .marca-estado { color: var(--azul-osc); }
+.campo-llenado.est-calculado input { color: var(--gris); cursor: not-allowed; }
+
+/* --- antes / despues --- */
+.diff { margin: 20px 0 6px; padding: 16px 18px; border-radius: 10px;
+        background: #fbfcfe; border: 1px solid #dfe4ee; }
+.diff h3 { margin: 0 0 4px; font-size: 15px; }
+.diff .antes   { color: var(--gris); font-style: italic; }
+.diff .despues { color: var(--ok); font-weight: 600; }
+
+/* ==========================================================================
+   PANTALLA DE CONCILIACIÓN APM / TDD
+   ========================================================================== */
+
+.etapa { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--linea); }
+.etapa > h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px;
+              font-size: 16px; }
+.etapa .num { display: inline-flex; align-items: center; justify-content: center;
+              width: 24px; height: 24px; border-radius: 50%; background: var(--azul);
+              color: #fff; font-size: 13px; font-weight: 700; }
+/* Una etapa que todavía no se puede usar se ve apagada y no responde: es más
+   claro que un mensaje de error después de intentarlo. */
+.etapa.apagada { opacity: .45; pointer-events: none; }
+.etapa.apagada .num { background: var(--gris); }
+
+.etapa textarea { width: 100%; font: inherit; font-size: 13.5px; padding: 9px 11px;
+                  border: 1px solid var(--linea); border-radius: 8px; resize: vertical; }
+
+.aviso-caja { margin: 14px 0; padding: 12px 16px; border-radius: 8px;
+              background: #fffaf0; border: 1px solid #e6c67a; font-size: 13.5px; }
+.aviso-caja ul { margin: 6px 0 0; padding-left: 18px; }
+.aviso-caja li { margin-bottom: 4px; }
+.nota-alerta { color: #8a5b00; }
+
+tr.fila-alerta td { background: #fef7f6; }
+
+/* --- referencia al aplicativo/TDD en el paso 4, y bloques APM/TDD del paso 5 --- */
+.aplicativo-ref { margin: 12px 0 18px; padding: 12px 16px; border-radius: 10px;
+                  border: 1px solid #a9c3e8; background: var(--azul-claro); font-size: 13.5px; }
+.aplicativo-ref .nota-aplicativo { margin: 0; }
+.aplicativo-ref .nota { color: #5b6478; }
+.aplicativo-ref .etiqueta { margin-left: 6px; }
+
+/* --- panel «APM y TDD» (antes «Referencia TDD y APM»): el libro de APM arriba, un cuadro
+   pequeño y rectangular por habilitador abajo. Tres colores a propósito
+   (gris para las etiquetas, azul para el nombre del habilitador, verde
+   para el TDD) en vez de todo azul, para que se distinga de un vistazo
+   qué es cada línea. --- */
+.titulo-habilitadores { font-size: 13px; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--gris); margin: 18px 0 10px; }
+.cuadros-referencia { display: grid; gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin-top: 4px; }
+.cuadro-referencia {
+  display: grid; gap: 2px; padding: 7px 10px; border-radius: 7px;
+  background: #fff; border: 1px solid var(--linea); border-left: 4px solid var(--azul);
+  box-shadow: 0 1px 2px rgba(0, 42, 114, .05);
+}
+.cuadro-referencia-etiqueta { font-size: 9px; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--gris); font-weight: 700; }
+.cuadro-referencia-nombre { font-size: 12.5px; color: var(--azul-osc); font-weight: 600;
+    line-height: 1.2; }
+.cuadro-referencia-tdd-etiqueta { margin-top: 4px; padding-top: 4px;
+    border-top: 1px solid var(--linea); }
+.cuadro-referencia-tdd { font-size: 11px; color: var(--ok); font-weight: 600;
+    word-break: break-word; }
+.cuadro-referencia-apm { max-width: 320px; border-left-color: var(--ok); }
+.cuadro-referencia-apm .cuadro-referencia-nombre { font-size: 13px; }
+.cuadro-referencia-pendiente { color: var(--gris); font-style: italic; font-weight: 400; }
+
+/* Cuadro independiente (ya no vive dentro de .selector-manual-aplicativo --
+   se movio arriba de todo, antes de la nota de aplicativo identificado). */
+.candidatos-manual { margin: 0 0 14px; padding: 10px 14px; border-radius: 10px;
+    border: 1px dashed #a9c3e8; background: #f5f8fd; font-size: 13.5px; }
+.candidatos-manual > .nota { margin: 0 0 8px; }
+
+.selector-manual-aplicativo { display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; margin: 0 0 18px; padding: 10px 14px; border-radius: 10px;
+    border: 1px dashed #a9c3e8; background: #f5f8fd; font-size: 13.5px; }
+.selector-manual-aplicativo label { font-weight: 600; }
+.selector-manual-aplicativo select { max-width: 340px; }
+.selector-manual-aplicativo .nota { flex-basis: 100%; margin-top: 2px; }
+
+.bloque-fuente-llenado { margin: 18px 0 10px; }
+.bloque-fuente-llenado h3 { display: flex; align-items: center; gap: 10px;
+                            font-size: 15px; margin-bottom: 8px; }
+.bloque-fuente-llenado .etiqueta { font-weight: 400; }
+
+/* --- una ficha por campo en revisión --- */
+.campo-conc { margin: 12px 0; padding: 14px 16px; border-radius: 10px;
+              border: 1px solid #e2e6ee; background: #fff; border-left-width: 4px; }
+.campo-conc header { display: flex; align-items: center; gap: 10px;
+                     flex-wrap: wrap; margin-bottom: 6px; }
+.campo-conc.decidido { background: #f6faf7; }
+
+.campo-conc.e-ok    { border-left-color: var(--ok); }
+.campo-conc.e-prop  { border-left-color: var(--azul); }
+.campo-conc.e-ambar { border-left-color: #d99b1c; background: #fffaf0; }
+.campo-conc.e-rojo  { border-left-color: var(--error); background: #fef7f6; }
+.campo-conc.e-gris  { border-left-color: #b4bccb; background: #f5f6f9; }
+
+.pil.e-ok    { background: #e7f4ed; color: var(--ok);    border: 1px solid #a8d5bf; }
+.pil.e-prop  { background: var(--azul-claro); color: var(--azul); border: 1px solid #a9c3e8; }
+.pil.e-ambar { background: #fdf4e3; color: #8a5b00; border: 1px solid #e6c67a; }
+.pil.e-rojo  { background: #fdecea; color: var(--error); border: 1px solid #f0b4ae; }
+.pil.e-gris  { background: #eef0f4; color: #5b6478; border: 1px solid #ccd2dd; }
+
+/* --- el antes contra el después, uno debajo del otro para poder leerlos --- */
+.comparacion { display: grid; gap: 6px; margin: 8px 0; }
+/* minmax(0,...) en las dos columnas: sin eso, un nombre de archivo largo no se
+   deja encoger y se encima con el valor de al lado. */
+.comparacion > div { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr);
+                     gap: 12px; align-items: baseline; font-size: 13.5px; }
+.comparacion .etq { color: var(--gris); font-size: 12px; font-weight: 600;
+                    text-transform: uppercase; letter-spacing: .3px;
+                    overflow-wrap: anywhere; }
+.comparacion .val { overflow-wrap: anywhere; }
+.comparacion .val { font-weight: 600; }
+.comparacion .evidencia { grid-column: 2; font-size: 11.5px; color: var(--gris);
+                          font-style: italic; }
+
+.decidir { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.decidir select { max-width: 560px; }
+
+/* ---------- entradas con botón de archivo (v6) ---------- */
+.fila-entrada { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+.fila-entrada input[type="text"] { flex: 1 1 320px; min-width: 0; }
+
+/* El botón de subir es un <label> apuntando a un input file oculto: es la única
+   forma de que un selector de archivos se vea como el resto de los botones. */
+.btn-archivo { display: inline-flex; align-items: center; gap: 7px;
+               white-space: nowrap; cursor: pointer; }
+.btn-archivo .ico { font-size: 15px; line-height: 1; }
+
+.botones-origen { display: flex; gap: 10px; align-items: center;
+                  flex-wrap: wrap; margin: 10px 0 14px; }
+#aviso-subidos { margin: 8px 0; }
+
+/* Un paso al que todavía no se llega se ve apagado y no responde. Es más
+   honesto que dejar entrar a una pantalla vacía que parece rota. */
+.paso-chip.bloqueado { opacity: .45; cursor: not-allowed; }
+
+/* ---------- "Hacer nueva versión" (paso 5 y 6, v23) ----------
+   Gris/apagado por omisión -- nada que hacer todavía -- y azul solo cuando SÍ
+   hay campos que llenaban un hueco vacío del libro/TDD real y que aún no se
+   escribieron en ninguna versión. A propósito distinto de .btn/.btn-sec: el
+   cambio de color completo (no solo opacidad) es la señal de "ya hay algo
+   pendiente", que es justo lo que se pidió. */
+.btn-nueva-version {
+  border-radius: 8px; padding: 11px 20px; font: inherit; font-size: 14px;
+  font-weight: 600; cursor: pointer; border: 1px solid var(--linea);
+  background: #eef0f4; color: #8b93a3;
+}
+.btn-nueva-version:disabled { cursor: default; }
+.btn-nueva-version:not(:disabled) {
+  background: var(--azul); color: #fff; border-color: var(--azul);
+}
+.btn-nueva-version:not(:disabled):hover { background: var(--azul-osc); }
+
+/* ---------- "Ver diagramas" (paso 6, v23) ---------- */
+.acciones-diagramas { display: flex; gap: 12px; align-items: center;
+                      flex-wrap: wrap; margin: 14px 0; }
+.acciones-diagramas .nota { margin: 0; flex: 1 1 260px; }
+
+/* ---------- ventana de diagramas (modal flotante, v23) ----------
+   Es una ventana FLOTANTE de verdad (por encima de lo que ya está en
+   pantalla), no un panel de pantalla completa como .pantalla-config: paso 6
+   sigue visible y con su formulario intacto detrás. La visibilidad se
+   controla con el atributo nativo `hidden` (igual que el resto de la app),
+   así que basta con esconder/mostrar ese atributo desde JS -- la regla
+   global `[hidden] { display: none !important; }` ya protege el estado
+   cerrado, y por eso aquí es seguro escribir `display: flex` sin más. */
+.modal-diagramas {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-diagramas-fondo {
+  position: absolute; inset: 0; background: rgba(20, 33, 61, .55);
+}
+.modal-diagramas-caja {
+  position: relative; background: #fff; border-radius: var(--radio);
+  max-width: 900px; width: 100%; max-height: 88vh; overflow-y: auto;
+  padding: 22px 24px; box-shadow: 0 14px 40px rgba(0,0,0,.25);
+}
+.modal-diagramas-cabecera { display: flex; align-items: flex-start;
+                            justify-content: space-between; gap: 14px; }
+.modal-diagramas-cabecera h3 { margin: 0; font-size: 18px; color: var(--azul-osc); }
+.modal-diagramas-cerrar {
+  background: none; border: none; font-size: 26px; line-height: 1;
+  color: var(--gris); cursor: pointer; padding: 0 4px;
+}
+.modal-diagramas-cerrar:hover { color: var(--tinta); }
+.modal-diagramas-lista { display: flex; flex-direction: column; gap: 18px;
+                         margin-top: 16px; }
+.diagrama-item { border: 1px solid var(--linea); border-radius: 8px;
+                 padding: 12px; }
+.diagrama-item img { display: block; max-width: 100%; height: auto;
+                     border-radius: 4px; margin: 0 auto; }
+.diagrama-item .diagrama-origen { margin: 8px 0 0; font-size: 12px;
+                                  color: var(--gris); word-break: break-word; }
+.paso-chip.bloqueado:hover { border-color: var(--linea); }

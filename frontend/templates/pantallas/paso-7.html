@@ -1,0 +1,48 @@
+<section class="bloque paso" id="paso-7">
+  <h2>Exportación de Vectorización</h2>
+
+  <div class="export-grid">
+    <article class="export-tarjeta destacada">
+      <h3>Markdown <code>.md</code></h3>
+      <p>Frontmatter YAML con los metadatos y el contenido debajo. Es lo que
+         ingieren LangChain, LlamaIndex y Obsidian sin conector a medida: el
+         frontmatter se vuelve filtro y el cuerpo se vuelve los fragmentos
+         de búsqueda.</p>
+      <div class="acciones-tarjeta">
+        <button class="btn" id="btn-md-descargar" type="button">Descargar .md</button>
+        <button class="btn btn-sec" id="btn-md-copiar" type="button">Copiar</button>
+      </div>
+    </article>
+
+    <article class="export-tarjeta">
+      <h3>JSON <code>.json</code></h3>
+      <p>La ficha completa con evidencias, confianza por campo y trazabilidad.
+         Para cargar a una base de datos o a un catálogo de activos.</p>
+      <div class="acciones-tarjeta">
+        <button class="btn btn-sec" id="btn-json-descargar" type="button">Descargar .json</button>
+        <button class="btn btn-sec" id="btn-json-copiar" type="button">Copiar</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="guardar-disco">
+    <h3>Guardar en disco</h3>
+    <label for="carpeta-destino">Carpeta destino</label>
+    <input type="text" id="carpeta-destino" spellcheck="false">
+    <p class="nota">Se crea la subcarpeta <code>_ia-ready</code> dentro de esa
+       ruta. Los documentos originales no se tocan.</p>
+    <button class="btn" id="btn-guardar-disco" type="button">Guardar .md y .json</button>
+  </div>
+
+  <details class="vista-previa">
+    <summary>Ver el Markdown que se va a exportar</summary>
+    <pre id="preview-md"></pre>
+  </details>
+
+  <p class="confirmacion" id="confirmacion" hidden></p>
+  <p class="error" id="error-7" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" href="/paso/6">Atrás</a>
+    <button class="btn btn-sec" id="btn-reiniciar" type="button">Clasificar otra cosa</button>
+  </div>
+</section>

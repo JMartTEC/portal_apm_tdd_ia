@@ -1,0 +1,49 @@
+<section class="bloque paso" id="paso-2">
+  <h2>Esto es lo que se va a procesar</h2>
+
+  <div id="alcance-carpeta">
+    <div id="resumen-alcance" class="resumen"></div>
+
+    <div class="tabla-envoltura">
+      <table class="tabla" id="tabla-alcance">
+        <thead><tr><th>Archivo</th><th>Formato</th><th>Tamaño</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <details id="det-descartados" hidden>
+      <summary><span id="n-descartados">0</span> archivos que se van a omitir</summary>
+      <ul id="lista-descartados" class="lista-fina"></ul>
+    </details>
+
+    <label class="check">
+      <input type="checkbox" id="escribir" checked>
+      Guardar los <code>.md</code> y <code>.json</code> en una subcarpeta
+      <code id="nombre-salida">_ia-ready</code> junto a los originales
+    </label>
+
+    <p class="aviso" id="aviso-tiempo"></p>
+  </div>
+
+  <div class="progreso-vivo" id="progreso-vivo-2" hidden>
+    <p class="progreso-texto" id="texto-identificacion" hidden></p>
+
+    <div class="barra" id="envoltura-barra" hidden>
+      <div class="barra-relleno" id="barra"></div>
+    </div>
+    <p class="progreso-texto" id="progreso-texto" hidden></p>
+
+    <ol class="pipeline" id="pipeline" hidden>
+      <li data-fase="extraccion">Extracción del contenido<span class="detalle-fase"></span></li>
+      <li data-fase="reglas">Detección determinista<span class="detalle-fase"></span></li>
+      <li data-fase="modelo">Clasificación con IA<span class="detalle-fase"></span></li>
+      <li data-fase="validacion">Validación y arbitraje<span class="detalle-fase"></span></li>
+    </ol>
+  </div>
+
+  <p class="error" id="error-2" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" href="/">Atrás</a>
+    <button class="btn" id="btn-continuar-2" type="button">Analizar</button>
+  </div>
+</section>

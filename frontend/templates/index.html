@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEC | Clasificador de Activos de Conocimiento IA-Ready</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <div class="marca">
+      <span class="marca-tec">TEC</span>
+      <div>
+        <h1>Clasificador de activos de conocimiento IA-ready</h1>
+        <p>De documentos sueltos a activos indexables, con revisión humana.</p>
+      </div>
+    </div>
+    <div class="sellos">
+      <button class="sello sello-boton" id="btn-inicio" type="button">
+        Inicio
+      </button>
+      <button class="sello sello-boton" id="btn-conciliar" type="button">
+        Comparar APM
+      </button>
+      <button class="sello sello-boton" id="btn-tdd2" type="button">
+        Comparar TDD Nivel 2
+      </button>
+      <button class="sello sello-boton" id="sello-docs" type="button" hidden></button>
+      <button class="sello sello-boton" id="btn-config" type="button">
+        Configuración API key
+      </button>
+      <span class="sello" id="sello-proveedor" hidden></span>
+    </div>
+  </div>
+</header>
+
+<nav class="pasos-nav contenedor" id="pasos-nav">
+  <button class="paso-chip activo" data-ir="1"><b>1</b> Origen</button>
+  <button class="paso-chip" data-ir="2"><b>2</b> Alcance</button>
+  <button class="paso-chip" data-ir="3"><b>3</b> Análisis - IA Ready</button>
+  <button class="paso-chip" data-ir="4"><b>4</b> Revisión y Vectorización</button>
+  <button class="paso-chip" data-ir="5"><b>5</b> Llenado de APM</button>
+  <button class="paso-chip" data-ir="6"><b>6</b> Llenado de TDD</button>
+  <button class="paso-chip" data-ir="7"><b>7</b> Exportación de Vectorización</button>
+</nav>
+
+<main class="contenedor">
+
+<!-- ══════════ CONFIGURACIÓN ══════════ -->
+<section class="bloque pantalla-config" id="panel-config" hidden>
+  <div class="config-encabezado">
+    <div>
+      <h2>Configuración del proveedor</h2>
+      <p class="nota">Esta pantalla está fuera del flujo de consulta. Al guardar
+         vuelves al inicio.</p>
+    </div>
+    <button class="btn-texto" id="btn-cancelar-config" type="button">Cancelar</button>
+  </div>
+  <p class="nota nota-env">Las llaves se guardan en
+     <code id="ruta-env">.env</code>, que está en <code>.gitignore</code> y
+     nunca se sube a ningún repositorio.</p>
+
+  <div class="campo" style="margin-top:18px">
+    <label for="cfg-modo">Proveedor</label>
+    <select id="cfg-modo"></select>
+  </div>
+
+  <!-- ---- Claude API ---- -->
+  <fieldset class="grupo-config" id="grupo-claude">
+    <legend>Claude API</legend>
+
+    <div class="campo">
+      <label for="cfg-key">
+        API key
+        <span class="etiqueta" id="estado-llave">sin llave</span>
+      </label>
+      <input type="password" id="cfg-key" spellcheck="false"
+             autocomplete="off" placeholder="sk-ant-api03-...">
+      <p class="nota">
+        La obtienes en <b>console.anthropic.com → Settings → API keys</b>.
+        Por seguridad, una vez guardada no se vuelve a mostrar: solo verás los
+        primeros y últimos caracteres. Déjala vacía para conservar la actual.
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cfg-workspace">Workspace ID</label>
+      <input type="text" id="cfg-workspace" spellcheck="false"
+             placeholder="wrkspc_...">
+      <p class="nota">
+        Obligatorio si tu token está ligado a una identidad de organización.
+        Sin esto la API responde 400 aunque la llave sea correcta.
+        Está en <b>Settings → Workspaces</b>.
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cfg-modelo-claude">Modelo</label>
+      <select id="cfg-modelo-claude"></select>
+    </div>
+
+    <button class="btn-texto peligro" id="btn-borrar-llave" type="button">
+      Eliminar la llave guardada
+    </button>
+  </fieldset>
+
+  <!-- ---- Ollama ---- -->
+  <fieldset class="grupo-config" id="grupo-ollama">
+    <legend>Local (Ollama)</legend>
+    <div class="ficha">
+      <div class="campo">
+        <label for="cfg-modelo-ollama">Modelo</label>
+        <input type="text" id="cfg-modelo-ollama" spellcheck="false">
+      </div>
+      <div class="campo">
+        <label for="cfg-host">Host</label>
+        <input type="text" id="cfg-host" spellcheck="false">
+      </div>
+      <div class="campo">
+        <label for="cfg-maxchars">Recorte del documento (caracteres)</label>
+        <input type="text" id="cfg-maxchars" spellcheck="false">
+      </div>
+    </div>
+    <p class="nota">Gratis y sin conexión, pero no lee imágenes y es más lento.</p>
+  </fieldset>
+
+  <p class="confirmacion" id="config-ok" hidden></p>
+  <p class="error" id="config-error" hidden></p>
+
+  <div class="acciones">
+    <button class="btn" id="btn-guardar-config" type="button">Guardar y volver</button>
+    <button class="btn btn-sec" id="btn-probar-config" type="button">Probar conexión</button>
+    <button class="btn btn-sec" id="btn-cerrar-config" type="button">Volver sin guardar</button>
+  </div>
+</section>
+
+<!-- ══════════ CONCILIACIÓN APM / TDD ══════════ -->
+<section class="bloque pantalla-config" id="panel-conciliar" hidden>
+  <div class="config-encabezado">
+    <div>
+      <h2>Comparar APM</h2>
+      <p class="nota">Herramienta aparte para revisar y comparar documentos a mano
+         contra el APM — no es lo mismo que "Llenado de APM" (paso 5), que ya
+         propone el llenado solo cuando el documento se identifica. La
+         información sube de los documentos fuente al APM, <b>nunca al
+         revés</b>. El TDD Nivel 2 se compara aparte, en
+         «Comparar TDD Nivel 2».</p>
+    </div>
+    <button class="btn-texto" id="btn-cerrar-conciliar" type="button">Cancelar</button>
+  </div>
+
+  <!-- 1 · el libro -->
+  <section class="etapa" id="etapa-libro">
+    <h3><span class="num">1</span> El libro de APM</h3>
+    <div class="campo-ruta">
+      <label for="ruta-apm">URL o ruta del archivo <code>.xlsx</code></label>
+      <div class="fila-entrada">
+        <input type="text" id="ruta-apm" spellcheck="false"
+               placeholder="C:\Users\...\APM Inventario autoritativo de aplicativos.xlsx  ·  o https://...">
+        <label class="btn btn-sec btn-archivo" for="subir-apm">
+          <span class="ico">&#8593;</span> Elegir archivo</label>
+        <input type="file" id="subir-apm" accept=".xlsx,.xlsm" hidden>
+      </div>
+      <p class="nota">Si pones la <b>ruta</b>, la versión nueva se guarda junto a tu
+         original y éste no se toca. Si <b>subes</b> el archivo, la versión nueva
+         queda en la carpeta <code>_subidos</code> de la app — te digo dónde al
+         guardar.</p>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="btn-abrir-apm" type="button">Abrir el libro</button>
+      <button class="btn btn-sec" id="btn-sembrar" type="button" disabled>
+        Sembrar la base con APM y TDD</button>
+    </div>
+    <div id="resumen-apm" hidden></div>
+    <div class="campo-ruta" id="campo-tdd-carpeta" hidden>
+      <label for="carpeta-tdd">Carpeta con los TDD (para la línea base)</label>
+      <div class="fila-entrada">
+        <input type="text" id="carpeta-tdd" spellcheck="false"
+               placeholder="C:\Users\...\TDD Y APM">
+      </div>
+      <p class="nota">La base arranca con lo que ya dicen el APM y los TDD. Contra
+         eso se compara todo lo que llegue después.</p>
+    </div>
+    <div id="resumen-base" hidden></div>
+  </section>
+
+  <!-- 2 · los documentos fuente -->
+  <section class="etapa apagada" id="etapa-fuentes">
+    <h3><span class="num">2</span> Documentos fuente</h3>
+    <p class="nota">Arquitecturas, manuales, fichas técnicas. Si un archivo resulta
+       ser el propio APM o un TDD, se descarta: son destino, no materia prima.
+       <b>Máximo 60 MB por archivo.</b></p>
+    <div class="botones-origen">
+      <label class="btn btn-sec btn-archivo" for="subir-archivos">
+        <span class="ico">&#8593;</span> Subir archivos</label>
+      <input type="file" id="subir-archivos" multiple hidden>
+
+      <label class="btn btn-sec btn-archivo" for="subir-carpeta">
+        <span class="ico">&#128193;</span> Subir una carpeta</label>
+      <input type="file" id="subir-carpeta" webkitdirectory directory multiple hidden>
+
+      <span class="nota">…o pega abajo una URL o una ruta, una por renglón.</span>
+    </div>
+    <div class="campo-ruta">
+      <label for="ruta-fuentes">URL o ruta — una por renglón, o una sola carpeta</label>
+      <textarea id="ruta-fuentes" rows="3" spellcheck="false"
+                placeholder="C:\Users\...\Documentacion&#10;https://sharepoint.../arquitectura.docx"></textarea>
+    </div>
+    <p class="nota" id="aviso-subidos" hidden></p>
+    <div class="acciones">
+      <button class="btn" id="btn-revisar-fuentes" type="button">Revisar los documentos</button>
+    </div>
+    <div id="tabla-fuentes" hidden></div>
+  </section>
+
+  <!-- 3 · el APM -->
+  <section class="etapa apagada" id="etapa-apm">
+    <h3><span class="num">3</span> Revisión del APM</h3>
+    <div class="campo">
+      <label for="sel-aplicativo">Aplicativo</label>
+      <select id="sel-aplicativo"></select>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="btn-analizar-apm" type="button">Analizar este aplicativo</button>
+    </div>
+    <div id="resultado-apm" hidden></div>
+  </section>
+
+  <section class="etapa" id="etapa-base">
+    <h3><span class="num">4</span> La base</h3>
+    <p class="nota">Lo que la aplicación ya sabe: la línea base del APM y los TDD,
+       los documentos leídos, y las decisiones que has tomado. Se puede exportar
+       para moverla a otra base de datos.</p>
+    <div id="estado-base"></div>
+    <div class="acciones">
+      <button class="btn btn-sec" id="btn-ver-base" type="button">Ver qué hay guardado</button>
+      <button class="btn btn-sec" id="btn-reporte-base" type="button">Reporte de avance</button>
+      <button class="btn btn-sec" id="btn-exportar-base" type="button">Exportar a JSON y CSV</button>
+    </div>
+    <p class="confirmacion" id="ok-base" hidden></p>
+    <div id="reporte-base" hidden></div>
+  </section>
+
+  <p class="error" id="error-conciliar" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" id="btn-volver-conciliar" type="button">Volver al inicio</button>
+  </div>
+</section>
+
+<!-- ══════════ COMPARAR TDD NIVEL 2 ══════════ -->
+<section class="bloque pantalla-config" id="panel-tdd2" hidden>
+  <div class="config-encabezado">
+    <div>
+      <h2>Comparar TDD Nivel 2</h2>
+      <p class="nota">Compara un TDD Nivel 2 (la plantilla de Gobierno de
+         Aplicativos, con confianza C1-C4 por dato) contra el que ya está
+         sembrado como referencia de ese mismo aplicativo — nunca contra el
+         APM ni contra el TDD_V3, que ya no se usa. El TDD Nivel 2 nunca se
+         llena solo desde otra fuente: si el documento subido y la
+         referencia no dicen lo mismo, queda como conflicto para que lo
+         decidas tú, campo por campo.</p>
+    </div>
+    <button class="btn-texto" id="btn-cerrar-tdd2" type="button">Cancelar</button>
+  </div>
+
+  <!-- 1 · la referencia -->
+  <section class="etapa" id="tdd2-etapa-libro">
+    <h3><span class="num">1</span> El libro de APM y la referencia</h3>
+    <div class="campo-ruta">
+      <label for="tdd2-ruta-apm">URL o ruta del archivo <code>.xlsx</code> del APM</label>
+      <div class="fila-entrada">
+        <input type="text" id="tdd2-ruta-apm" spellcheck="false"
+               placeholder="C:\Users\...\APM Inventario autoritativo de aplicativos.xlsx  ·  o https://...">
+      </div>
+      <p class="nota">Hace falta el libro para saber a qué aplicativo pertenece
+         cada TDD Nivel 2 que subas.</p>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="tdd2-btn-abrir-apm" type="button">Abrir el libro</button>
+      <button class="btn btn-sec" id="tdd2-btn-sembrar" type="button" disabled>
+        Sembrar los 67 TDD Nivel 2 de referencia</button>
+    </div>
+    <p class="nota">«Sembrar» solo hace falta la primera vez (o si se
+       reemplazaron los archivos de origen): toma los TDD Nivel 2 reales ya
+       cargados en el servidor y los adopta como línea base, uno por
+       aplicativo.</p>
+    <div id="tdd2-resumen-siembra" hidden></div>
+    <div id="tdd2-resumen-referencia" hidden></div>
+  </section>
+
+  <!-- 2 · subir y comparar -->
+  <section class="etapa apagada" id="tdd2-etapa-subir">
+    <h3><span class="num">2</span> Subir el TDD Nivel 2 a revisar</h3>
+    <div class="campo-ruta">
+      <label for="tdd2-ruta-doc">URL o ruta del TDD Nivel 2 <code>.docx</code></label>
+      <div class="fila-entrada">
+        <input type="text" id="tdd2-ruta-doc" spellcheck="false"
+               placeholder="C:\Users\...\TDD_PASE_Nivel_2.docx  ·  o https://...">
+        <label class="btn btn-sec btn-archivo" for="tdd2-subir-doc">
+          <span class="ico">&#8593;</span> Elegir archivo</label>
+        <input type="file" id="tdd2-subir-doc" accept=".docx" hidden>
+      </div>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="tdd2-btn-comparar" type="button">Comparar contra la referencia</button>
+    </div>
+    <div id="tdd2-resultado" hidden></div>
+  </section>
+
+  <p class="error" id="tdd2-error" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" id="tdd2-btn-volver" type="button">Volver al inicio</button>
+  </div>
+</section>
+
+<!-- ══════════ DOCUMENTOS DE REFERENCIA ══════════ -->
+<section class="bloque pantalla-config" id="panel-docs" hidden>
+  <div class="config-encabezado">
+    <div>
+      <h2>APM y TDD</h2>
+      <p class="nota">Los habilitadores que ya están sembrados como referencia en el
+         sistema, con el TDD que le corresponde a cada uno. Es solo para consultar
+         qué hay -- no se sube ni se borra nada desde aquí.</p>
+    </div>
+    <button class="btn-texto" id="btn-cerrar-docs" type="button">Cerrar</button>
+  </div>
+
+  <p class="nota" id="resumen-docs-apm"></p>
+
+  <div class="cuadro-referencia cuadro-referencia-apm" id="cuadro-apm-referencia" hidden>
+    <span class="cuadro-referencia-etiqueta">APM</span>
+    <b class="cuadro-referencia-nombre" id="nombre-apm-referencia"></b>
+  </div>
+
+  <h3 class="titulo-habilitadores" id="titulo-habilitadores" hidden>Habilitadores</h3>
+  <div id="lista-docs-aplicativos" class="cuadros-referencia"></div>
+
+  <p class="error" id="error-docs" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" id="btn-volver-docs" type="button">Volver al inicio</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 1 · ORIGEN ══════════ -->
+<section class="bloque paso" id="paso-1">
+  <h2>¿Qué quieres clasificar?</h2>
+
+  <div class="modos">
+    <button class="modo activo" id="modo-archivo" type="button">
+      <b>Un documento</b><span>Una ruta o un archivo suelto</span>
+    </button>
+    <button class="modo" id="modo-carpeta" type="button">
+      <b>Una carpeta</b><span>Todos los documentos de un directorio</span>
+    </button>
+  </div>
+
+  <div class="campo-ruta">
+    <label for="ruta" id="ruta-label">Ruta del documento</label>
+    <input type="text" id="ruta" spellcheck="false"
+           placeholder="C:\Users\...\documento.docx">
+    <p class="nota" id="ruta-nota">
+      Pega la ruta completa. En el Explorador: clic derecho sobre el archivo →
+      <em>Copiar como ruta</em>.
+    </p>
+  </div>
+
+  <label class="check" id="check-recursivo" hidden>
+    <input type="checkbox" id="recursivo" checked>
+    Incluir subcarpetas
+  </label>
+
+  <details class="alterno">
+    <summary>O sube el archivo desde el navegador</summary>
+    <input type="file" id="input-archivo">
+    <p class="nota">Útil si el documento no está en este equipo. Se procesa en
+       memoria y se descarta al terminar.</p>
+  </details>
+
+  <p class="nota" id="nota-formatos"></p>
+
+  <p class="error" id="error-1" hidden></p>
+  <div class="acciones">
+    <button class="btn" id="btn-continuar-1" type="button">Continuar</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 2 · ALCANCE ══════════ -->
+<section class="bloque paso" id="paso-2" hidden>
+  <h2 id="paso-2-titulo">Esto es lo que se va a procesar</h2>
+
+  <div id="alcance-carpeta">
+    <div id="resumen-alcance" class="resumen"></div>
+
+    <div class="tabla-envoltura">
+      <table class="tabla" id="tabla-alcance">
+        <thead><tr><th>Archivo</th><th>Formato</th><th>Tamaño</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <details id="det-descartados" hidden>
+      <summary><span id="n-descartados">0</span> archivos que se van a omitir</summary>
+      <ul id="lista-descartados" class="lista-fina"></ul>
+    </details>
+
+    <label class="check">
+      <input type="checkbox" id="escribir" checked>
+      Guardar los <code>.md</code> y <code>.json</code> en una subcarpeta
+      <code id="nombre-salida">_ia-ready</code> junto a los originales
+    </label>
+
+    <p class="aviso" id="aviso-tiempo"></p>
+  </div>
+
+  <div id="alcance-un-documento" hidden>
+    <p class="nota" id="alcance-doc-nombre"></p>
+    <div class="chequeo-vivo" id="chequeo-alcance">
+      <div class="chequeo-item" data-chk="identificacion">
+        <span class="chequeo-punto"></span>
+        <span class="chequeo-texto">Verificando el documento…</span>
+      </div>
+      <div class="chequeo-item" data-chk="extraccion">
+        <span class="chequeo-punto"></span>
+        <span class="chequeo-texto">Leyendo el contenido…</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="error" id="error-2" hidden></p>
+  <div class="acciones" id="acciones-paso-2">
+    <button class="btn btn-sec" data-ir="1" type="button">Atrás</button>
+    <button class="btn" id="btn-continuar-2" type="button">Analizar</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 3 · ANÁLISIS - IA READY ══════════ -->
+<section class="bloque paso" id="paso-3" hidden>
+  <h2>Análisis - IA Ready</h2>
+
+  <div class="barra"><div class="barra-relleno" id="barra"></div></div>
+  <p class="progreso-texto" id="progreso-texto">Preparando…</p>
+
+  <ol class="pipeline" id="pipeline">
+    <li data-fase="extraccion">Extracción del contenido<span class="detalle-fase"></span></li>
+    <li data-fase="reglas">Detección determinista<span class="detalle-fase"></span></li>
+    <li data-fase="modelo">Clasificación con IA<span class="detalle-fase"></span></li>
+    <li data-fase="validacion">Validación y arbitraje<span class="detalle-fase"></span></li>
+  </ol>
+
+  <div class="hallazgo-vivo" id="hallazgo-vivo" hidden></div>
+
+  <div class="tabla-envoltura" id="envoltura-avance" hidden>
+    <table class="tabla" id="tabla-avance">
+      <thead><tr><th>Archivo</th><th>Tipo</th><th>Estado</th><th>Resultado</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <p class="error" id="error-3" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" id="btn-cancelar" type="button" hidden>Cancelar</button>
+    <button class="btn" id="btn-continuar-3" type="button" hidden>Ver resultados</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 4 · REVISIÓN Y VECTORIZACIÓN ══════════ -->
+<section class="bloque paso" id="paso-4" hidden>
+  <h2>Revisión y Vectorización</h2>
+
+  <div id="tarjeta-igual-sistema" hidden></div>
+
+  <div class="selector-lote" id="selector-lote" hidden>
+    <label for="sel-documento">Documento</label>
+    <select id="sel-documento"></select>
+  </div>
+
+  <div class="aplicativo-ref" id="aplicativo-ref" hidden></div>
+
+  <details class="alterno" id="det-omitidos" hidden>
+    <summary><span id="n-omitidos">0</span> documentos que no pasaron a revisión</summary>
+    <ul id="lista-omitidos" class="lista-fina"></ul>
+  </details>
+
+  <div class="resumen" id="resumen"></div>
+  <p class="nota" id="nota-campos-ficha">Los campos marcados necesitan tu confirmación. Lo que corrijas
+     aquí es lo que se exporta.</p>
+  <div class="ficha" id="ficha"></div>
+
+  <div class="observaciones" id="observaciones" hidden>
+    <h3>Observaciones</h3>
+    <ul id="lista-observaciones"></ul>
+  </div>
+
+  <div class="fuentes" id="fuentes" hidden>
+    <h3>Información de fuentes institucionales</h3>
+    <p class="nota">Qué aporta este documento al Knowledge Hub, por fuente.
+       El nivel de criticidad viene del catálogo institucional, no del modelo.</p>
+    <div class="fuente-bloque" id="bloque-apm" hidden>
+      <h4>APM <span class="etiqueta">Inventario de Aplicaciones</span></h4>
+      <div class="tabla-envoltura">
+        <table class="tabla" id="tabla-apm">
+          <thead><tr><th>Grupo</th><th>Nivel</th><th>Cobertura</th><th>Detalle</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="fuente-bloque" id="bloque-tdd" hidden>
+      <h4>TDD <span class="etiqueta">Diseño Técnico</span></h4>
+      <div class="tabla-envoltura">
+        <table class="tabla" id="tabla-tdd">
+          <thead><tr><th>Bloque</th><th>Nivel</th><th>Cobertura</th><th>Detalle</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="nota" id="fuentes-vacio" hidden>
+      Este documento no aporta información de APM ni de TDD.</p>
+  </div>
+
+  <div class="diagramas" id="diagramas" hidden>
+    <h3>Diagramas convertidos a texto</h3>
+    <div id="lista-diagramas"></div>
+  </div>
+
+  <p class="error" id="error-4" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" data-ir="3" type="button">Atrás</button>
+    <button class="btn" id="btn-continuar-4" type="button">Continuar al llenado</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 5 · LLENADO APM ══════════ -->
+<section class="bloque paso" id="paso-5" hidden>
+  <h2>Llenado de APM</h2>
+  <p class="nota">
+    Las columnas reales del APM para el aplicativo con el que este documento
+    quedó identificado, comparadas contra lo que el libro de APM ya tiene.
+    <b>Nada aquí se inventa:</b> si no se identificó a qué aplicativo
+    pertenece el documento, los 45 campos se muestran igual (llenos y en
+    falta), y abajo puedes elegir a mano contra cuál aplicativo comparar.
+  </p>
+
+  <div class="aplicativo-ref" id="cabecera-modulo5" hidden></div>
+
+  <div class="selector-manual-aplicativo" id="selector-manual-5" hidden>
+    <label for="sel-aplicativo-5">Comparar contra:</label>
+    <select id="sel-aplicativo-5"></select>
+    <button class="btn btn-sec" id="btn-aplicar-manual-5" type="button">Usar este aplicativo</button>
+    <span class="nota" id="nota-manual-5"></span>
+  </div>
+
+  <div class="resumen" id="resumen-llenado-apm"></div>
+
+  <div class="leyenda">
+    <span class="pil e-extraido">Extraído del documento</span>
+    <span class="pil e-heredado">Ya está en el APM</span>
+    <span class="pil e-diferente">El documento dice otra cosa · revisa</span>
+    <span class="pil e-faltante">Falta</span>
+    <span class="pil e-calculado">Calculado (fórmula) · solo lectura</span>
+  </div>
+
+  <div class="acciones acciones-llenado">
+    <button class="btn" id="btn-llenar" type="button">Llenar documento</button>
+    <button class="btn btn-sec" id="btn-ver-cambios" type="button" hidden>Ver antes y después</button>
+    <button class="btn btn-sec" id="btn-deshacer-llenado" type="button" hidden>Deshacer el llenado</button>
+  </div>
+
+  <p class="confirmacion" id="llenado-ok" hidden></p>
+  <p class="confirmacion" id="nueva-version-ok-5" hidden></p>
+  <p class="error" id="nueva-version-error-5" hidden></p>
+
+  <div class="diff" id="diff-llenado" hidden>
+    <h3>Antes y después</h3>
+    <p class="nota">Solo se listan los campos que cambiaron. Lo que ya tenía
+       valor no se tocó: el llenado rellena huecos, no pisa lo escrito.</p>
+    <div class="tabla-envoltura">
+      <table class="tabla" id="tabla-diff">
+        <thead><tr><th>Campo</th><th>Antes</th><th>Después</th><th>De dónde salió</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="ficha-llenado"></div>
+
+  <p class="error" id="error-5" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" data-ir="4" type="button">Atrás</button>
+    <button class="btn-nueva-version" id="btn-nueva-version-5" type="button" disabled
+            title="No hay campos vacíos del libro con un dato nuevo que escribir todavía">
+      Hacer nueva versión</button>
+    <button class="btn" id="btn-continuar-5" type="button">Continuar a TDD</button>
+  </div>
+</section>
+
+<!-- ══════════ PASO 6 · LLENADO DE TDD ══════════ -->
+<section class="bloque paso" id="paso-6" hidden>
+  <h2>Llenado de TDD</h2>
+  <p class="nota">
+    Se compara este documento contra el archivo TDD real del aplicativo (no
+    una plantilla genérica: cada TDD trae sus propias tablas). Si el
+    aplicativo no tiene un TDD real en la base, se muestra una propuesta con
+    lo que el documento trae, sin nada contra qué comparar. El botón
+    "Llenar documento" de Llenado de APM ya aplica también estos campos.
+    Si no se identificó ningún aplicativo, puedes elegir uno a mano abajo.
+  </p>
+
+  <div class="aplicativo-ref" id="cabecera-modulo6" hidden></div>
+
+  <div class="selector-manual-aplicativo" id="selector-manual-6" hidden>
+    <label for="sel-aplicativo-6">Comparar contra:</label>
+    <select id="sel-aplicativo-6"></select>
+    <button class="btn btn-sec" id="btn-aplicar-manual-6" type="button">Usar este aplicativo</button>
+    <span class="nota" id="nota-manual-6"></span>
+  </div>
+
+  <div class="resumen" id="resumen-llenado-tdd"></div>
+
+  <div class="acciones-diagramas" id="bloque-ver-diagramas" hidden>
+    <button class="btn btn-sec" id="btn-ver-diagramas" type="button">
+      Ver diagramas <span id="n-diagramas">(0)</span></button>
+    <span class="nota">Diagramas encontrados en el documento -- se muestran
+      tal cual vienen, en una ventana aparte. No se guardan en disco: solo
+      viven mientras dura esta sesión.</span>
+  </div>
+
+  <div id="ficha-tdd"></div>
+
+  <p class="error" id="error-6" hidden></p>
+  <p class="confirmacion" id="nueva-version-ok-6" hidden></p>
+  <p class="error" id="nueva-version-error-6" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" data-ir="5" type="button">Atrás</button>
+    <button class="btn-nueva-version" id="btn-nueva-version-6" type="button" disabled
+            title="No hay campos vacíos del TDD con un dato nuevo que escribir todavía">
+      Hacer nueva versión</button>
+    <button class="btn" id="btn-continuar-6" type="button">Continuar a exportación</button>
+  </div>
+</section>
+
+<!-- ══════════ VENTANA DE DIAGRAMAS (modulo 6) ══════════ -->
+<div class="modal-diagramas" id="modal-diagramas" hidden>
+  <div class="modal-diagramas-fondo" id="modal-diagramas-fondo"></div>
+  <div class="modal-diagramas-caja" role="dialog" aria-modal="true" aria-labelledby="modal-diagramas-titulo">
+    <div class="modal-diagramas-cabecera">
+      <h3 id="modal-diagramas-titulo">Diagramas del documento</h3>
+      <button class="modal-diagramas-cerrar" id="btn-cerrar-diagramas" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+    <p class="nota">Tal como vienen incrustados en el documento -- no se
+       guardan en disco, solo se muestran mientras dura esta sesión.</p>
+    <div class="modal-diagramas-lista" id="modal-diagramas-lista"></div>
+  </div>
+</div>
+
+<!-- ══════════ PASO 7 · EXPORTACIÓN DE VECTORIZACIÓN ══════════ -->
+<section class="bloque paso" id="paso-7" hidden>
+  <h2>Exportación de Vectorización</h2>
+
+  <div class="export-grid">
+    <article class="export-tarjeta destacada">
+      <h3>Markdown <code>.md</code></h3>
+      <p>Frontmatter YAML con los metadatos y el contenido debajo. Es lo que
+         ingieren LangChain, LlamaIndex y Obsidian sin conector a medida: el
+         frontmatter se vuelve filtro y el cuerpo se vuelve los fragmentos
+         de búsqueda.</p>
+      <div class="acciones-tarjeta">
+        <button class="btn" id="btn-md-descargar" type="button">Descargar .md</button>
+        <button class="btn btn-sec" id="btn-md-copiar" type="button">Copiar</button>
+      </div>
+    </article>
+
+    <article class="export-tarjeta">
+      <h3>JSON <code>.json</code></h3>
+      <p>La ficha completa con evidencias, confianza por campo y trazabilidad.
+         Para cargar a una base de datos o a un catálogo de activos.</p>
+      <div class="acciones-tarjeta">
+        <button class="btn btn-sec" id="btn-json-descargar" type="button">Descargar .json</button>
+        <button class="btn btn-sec" id="btn-json-copiar" type="button">Copiar</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="guardar-disco">
+    <h3>Guardar en disco</h3>
+    <label for="carpeta-destino">Carpeta destino</label>
+    <input type="text" id="carpeta-destino" spellcheck="false">
+    <p class="nota">Se crea la subcarpeta <code>_ia-ready</code> dentro de esa
+       ruta. Los documentos originales no se tocan.</p>
+    <button class="btn" id="btn-guardar-disco" type="button">Guardar .md y .json</button>
+  </div>
+
+  <details class="vista-previa">
+    <summary>Ver el Markdown que se va a exportar</summary>
+    <pre id="preview-md"></pre>
+  </details>
+
+  <p class="confirmacion" id="confirmacion" hidden></p>
+  <p class="error" id="error-7" hidden></p>
+  <div class="acciones">
+    <button class="btn btn-sec" data-ir="6" type="button">Atrás</button>
+    <button class="btn btn-sec" id="btn-reiniciar" type="button">Clasificar otra cosa</button>
+  </div>
+</section>
+
+</main>
+
+<script src="/static/app.js"></script>
+<script src="/static/conciliar.js"></script>
+<script src="/static/tdd2.js"></script>
+</body>
+</html>

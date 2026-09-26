@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEC | Clasificador de Activos de Conocimiento IA-Ready</title>
+<link rel="stylesheet" href="/static/comun/comun.css">
+</head>
+<body data-paso="{{PASO}}">
+
+<header class="cabecera">
+  <div class="contenedor cabecera-marca">
+    <a class="marca" href="/" aria-label="Ir al inicio">
+      <img class="logo-tec" src="/static/img/logo-tec-blanco.png"
+           alt="Tecnológico de Monterrey" width="176" height="47">
+      <span class="marca-sep" aria-hidden="true"></span>
+      <span class="marca-texto">
+        <span class="marca-titulo">Clasificador de activos de conocimiento IA-ready</span>
+        <span class="marca-sub">De documentos sueltos a activos indexables, con revisión humana.</span>
+      </span>
+    </a>
+    <div class="placa-omnisys" title="Desarrollado por Omnisys S.A. de C.V.">
+      <span>Desarrollado por</span>
+      <img src="/static/img/logo-omnisys.svg" alt="OmniSys" width="104" height="21">
+    </div>
+  </div>
+  <nav class="menu-principal" aria-label="Menú principal">
+    <div class="contenedor menu-fila">
+      <div class="sellos">
+        <a class="sello sello-boton" id="btn-inicio" href="/">
+          Inicio
+        </a>
+        <a class="sello sello-boton" id="btn-conciliar" href="/conciliar">
+          Comparar APM
+        </a>
+        <a class="sello sello-boton" id="btn-tdd2" href="/tdd2">
+          Comparar TDD Nivel 2
+        </a>
+        <a class="sello sello-boton" id="sello-docs" href="/docs" hidden></a>
+        <a class="sello sello-boton" id="btn-config" href="/config">
+          Configuración API key
+        </a>
+        <a class="sello sello-boton" id="btn-manual" href="/static/manual/Manual_de_usuario_Portal_APM_TEC.pdf"
+           target="_blank" rel="noopener" title="Abre el manual de usuario en una pestaña nueva">
+          Manual de usuario
+        </a>
+      </div>
+      <span class="sello" id="sello-proveedor" hidden></span>
+    </div>
+  </nav>
+</header>
+
+{{NAV_PASOS}}
+
+<main class="contenedor">
+{{CONTENIDO}}
+</main>
+
+<footer class="pie">
+  <div class="contenedor pie-fila">
+    <span>© 2026 Tecnológico de Monterrey · Clasificador de activos de conocimiento IA-ready</span>
+    <span>Desarrollado por <b>Omnisys S.A. de C.V.</b></span>
+  </div>
+</footer>
+
+<script>
+  // Marca en el menú la sección en la que está el usuario.
+  (function () {
+    var p = location.pathname, id = "btn-inicio";
+    if (p.indexOf("/conciliar") === 0) id = "btn-conciliar";
+    else if (p.indexOf("/tdd2") === 0) id = "btn-tdd2";
+    else if (p.indexOf("/docs") === 0) id = "sello-docs";
+    else if (p.indexOf("/config") === 0) id = "btn-config";
+    var el = document.getElementById(id);
+    if (el) { el.classList.add("actual"); el.setAttribute("aria-current", "page"); }
+  })();
+</script>
+<script src="/static/comun/comun.js"></script>
+{{JS_PANTALLA}}
+</body>
+</html>

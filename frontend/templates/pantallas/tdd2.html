@@ -1,0 +1,64 @@
+<section class="bloque pantalla-config" id="panel-tdd2">
+  <div class="config-encabezado">
+    <div>
+      <h2>Comparar TDD Nivel 2</h2>
+      <p class="nota">Compara un TDD Nivel 2 (la plantilla de Gobierno de
+         Aplicativos, con confianza C1-C4 por dato) contra el que ya está
+         sembrado como referencia de ese mismo aplicativo — nunca contra el
+         APM ni contra el TDD_V3, que ya no se usa. El TDD Nivel 2 nunca se
+         llena solo desde otra fuente: si el documento subido y la
+         referencia no dicen lo mismo, queda como conflicto para que lo
+         decidas tú, campo por campo.</p>
+    </div>
+    <a class="btn-texto" id="btn-cerrar-tdd2" href="/">Cancelar</a>
+  </div>
+
+  <!-- 1 · la referencia -->
+  <section class="etapa" id="tdd2-etapa-libro">
+    <h3><span class="num">1</span> El libro de APM y la referencia</h3>
+    <div class="campo-ruta">
+      <label for="tdd2-ruta-apm">URL o ruta del archivo <code>.xlsx</code> del APM</label>
+      <div class="fila-entrada">
+        <input type="text" id="tdd2-ruta-apm" spellcheck="false"
+               placeholder="C:\Users\...\APM Inventario autoritativo de aplicativos.xlsx  ·  o https://...">
+      </div>
+      <p class="nota">Hace falta el libro para saber a qué aplicativo pertenece
+         cada TDD Nivel 2 que subas.</p>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="tdd2-btn-abrir-apm" type="button">Abrir el libro</button>
+      <button class="btn btn-sec" id="tdd2-btn-sembrar" type="button" disabled>
+        Sembrar los 67 TDD Nivel 2 de referencia</button>
+    </div>
+    <p class="nota">«Sembrar» solo hace falta la primera vez (o si se
+       reemplazaron los archivos de origen): toma los TDD Nivel 2 reales ya
+       cargados en el servidor y los adopta como línea base, uno por
+       aplicativo.</p>
+    <div id="tdd2-resumen-siembra" hidden></div>
+    <div id="tdd2-resumen-referencia" hidden></div>
+  </section>
+
+  <!-- 2 · subir y comparar -->
+  <section class="etapa apagada" id="tdd2-etapa-subir">
+    <h3><span class="num">2</span> Subir el TDD Nivel 2 a revisar</h3>
+    <div class="campo-ruta">
+      <label for="tdd2-ruta-doc">URL o ruta del TDD Nivel 2 <code>.docx</code></label>
+      <div class="fila-entrada">
+        <input type="text" id="tdd2-ruta-doc" spellcheck="false"
+               placeholder="C:\Users\...\TDD_PASE_Nivel_2.docx  ·  o https://...">
+        <label class="btn btn-sec btn-archivo" for="tdd2-subir-doc">
+          <span class="ico">&#8593;</span> Elegir archivo</label>
+        <input type="file" id="tdd2-subir-doc" accept=".docx" hidden>
+      </div>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="tdd2-btn-comparar" type="button">Comparar contra la referencia</button>
+    </div>
+    <div id="tdd2-resultado" hidden></div>
+  </section>
+
+  <p class="error" id="tdd2-error" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" id="tdd2-btn-volver" href="/">Volver al inicio</a>
+  </div>
+</section>

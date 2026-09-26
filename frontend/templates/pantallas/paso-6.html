@@ -1,0 +1,64 @@
+<section class="bloque paso" id="paso-6">
+  <h2>Llenado de TDD</h2>
+  <p class="nota">
+    Se compara este documento contra el archivo TDD real del aplicativo (no
+    una plantilla genérica: cada TDD trae sus propias tablas). Si el
+    aplicativo no tiene un TDD real en la base, se muestra una propuesta con
+    lo que el documento trae, sin nada contra qué comparar. El botón
+    "Llenar documento" de Llenado de APM ya aplica también estos campos.
+    Si no se identificó ningún aplicativo, puedes elegir uno a mano abajo.
+  </p>
+
+  <div class="candidatos-manual" id="candidatos-manual-6" hidden>
+    <p class="nota">El documento menciona varios habilitadores -- elige el suyo:</p>
+    <ul class="lista-habilitadores" id="lista-candidatos-6"></ul>
+  </div>
+
+  <div class="aplicativo-ref" id="cabecera-modulo6" hidden></div>
+
+  <div class="selector-manual-aplicativo" id="selector-manual-6" hidden>
+    <label for="sel-aplicativo-6">Comparar contra:</label>
+    <select id="sel-aplicativo-6"></select>
+    <button class="btn btn-sec" id="btn-aplicar-manual-6" type="button">Usar este aplicativo</button>
+    <span class="nota" id="nota-manual-6"></span>
+  </div>
+
+  <div class="resumen" id="resumen-llenado-tdd"></div>
+
+  <div class="acciones-diagramas" id="bloque-ver-diagramas" hidden>
+    <button class="btn btn-sec" id="btn-ver-diagramas" type="button">
+      Ver diagramas <span id="n-diagramas">(0)</span></button>
+    <span class="nota">Diagramas encontrados en el documento -- se muestran
+      tal cual vienen, en una ventana aparte. No se guardan en disco: solo
+      viven mientras dura esta sesión.</span>
+  </div>
+
+  <div id="ficha-tdd"></div>
+
+  <p class="error" id="error-6" hidden></p>
+  <p class="confirmacion" id="nueva-version-ok-6" hidden></p>
+  <p class="error" id="nueva-version-error-6" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" href="/paso/5">Atrás</a>
+    <button class="btn btn-sec" id="btn-otro-habilitador-6" type="button">
+      Revisar otro habilitador de este documento</button>
+    <button class="btn-nueva-version" id="btn-nueva-version-6" type="button" disabled
+            title="No hay campos vacíos del TDD con un dato nuevo que escribir todavía">
+      Hacer nueva versión</button>
+    <button class="btn" id="btn-continuar-6" type="button">Continuar a exportación</button>
+  </div>
+</section>
+
+<!-- ══════════ VENTANA DE DIAGRAMAS ══════════ -->
+<div class="modal-diagramas" id="modal-diagramas" hidden>
+  <div class="modal-diagramas-fondo" id="modal-diagramas-fondo"></div>
+  <div class="modal-diagramas-caja" role="dialog" aria-modal="true" aria-labelledby="modal-diagramas-titulo">
+    <div class="modal-diagramas-cabecera">
+      <h3 id="modal-diagramas-titulo">Diagramas del documento</h3>
+      <button class="modal-diagramas-cerrar" id="btn-cerrar-diagramas" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+    <p class="nota">Tal como vienen incrustados en el documento -- no se
+       guardan en disco, solo se muestran mientras dura esta sesión.</p>
+    <div class="modal-diagramas-lista" id="modal-diagramas-lista"></div>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<section class="bloque pantalla-config" id="panel-conciliar">
+  <div class="config-encabezado">
+    <div>
+      <h2>Comparar APM</h2>
+      <p class="nota">Herramienta aparte para revisar y comparar documentos a mano
+         contra el APM — no es lo mismo que "Llenado de APM" (paso 5), que ya
+         propone el llenado solo cuando el documento se identifica. La
+         información sube de los documentos fuente al APM, <b>nunca al
+         revés</b>. El TDD Nivel 2 se compara aparte, en
+         «Comparar TDD Nivel 2».</p>
+    </div>
+    <a class="btn-texto" id="btn-cerrar-conciliar" href="/">Cancelar</a>
+  </div>
+
+  <!-- 1 · el libro -->
+  <section class="etapa" id="etapa-libro">
+    <h3><span class="num">1</span> El libro de APM</h3>
+    <div class="campo-ruta">
+      <label for="ruta-apm">URL o ruta del archivo <code>.xlsx</code></label>
+      <div class="fila-entrada">
+        <input type="text" id="ruta-apm" spellcheck="false"
+               placeholder="C:\Users\...\APM Inventario autoritativo de aplicativos.xlsx  ·  o https://...">
+        <label class="btn btn-sec btn-archivo" for="subir-apm">
+          <span class="ico">&#8593;</span> Elegir archivo</label>
+        <input type="file" id="subir-apm" accept=".xlsx,.xlsm" hidden>
+      </div>
+      <p class="nota">Si pones la <b>ruta</b>, la versión nueva se guarda junto a tu
+         original y éste no se toca. Si <b>subes</b> el archivo, la versión nueva
+         queda en la carpeta <code>_subidos</code> de la app — te digo dónde al
+         guardar.</p>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="btn-abrir-apm" type="button">Abrir el libro</button>
+      <button class="btn btn-sec" id="btn-sembrar" type="button" disabled>
+        Sembrar la base con APM y TDD</button>
+    </div>
+    <div id="resumen-apm" hidden></div>
+    <div class="campo-ruta" id="campo-tdd-carpeta" hidden>
+      <label for="carpeta-tdd">Carpeta con los TDD (para la línea base)</label>
+      <div class="fila-entrada">
+        <input type="text" id="carpeta-tdd" spellcheck="false"
+               placeholder="C:\Users\...\TDD Y APM">
+      </div>
+      <p class="nota">La base arranca con lo que ya dicen el APM y los TDD. Contra
+         eso se compara todo lo que llegue después.</p>
+    </div>
+    <div id="resumen-base" hidden></div>
+  </section>
+
+  <!-- 2 · los documentos fuente -->
+  <section class="etapa apagada" id="etapa-fuentes">
+    <h3><span class="num">2</span> Documentos fuente</h3>
+    <p class="nota">Arquitecturas, manuales, fichas técnicas. Si un archivo resulta
+       ser el propio APM o un TDD, se descarta: son destino, no materia prima.
+       <b>Máximo 60 MB por archivo.</b></p>
+    <div class="botones-origen">
+      <label class="btn btn-sec btn-archivo" for="subir-archivos">
+        <span class="ico">&#8593;</span> Subir archivos</label>
+      <input type="file" id="subir-archivos" multiple hidden>
+
+      <label class="btn btn-sec btn-archivo" for="subir-carpeta">
+        <span class="ico">&#128193;</span> Subir una carpeta</label>
+      <input type="file" id="subir-carpeta" webkitdirectory directory multiple hidden>
+
+      <span class="nota">…o pega abajo una URL o una ruta, una por renglón.</span>
+    </div>
+    <div class="campo-ruta">
+      <label for="ruta-fuentes">URL o ruta — una por renglón, o una sola carpeta</label>
+      <textarea id="ruta-fuentes" rows="3" spellcheck="false"
+                placeholder="C:\Users\...\Documentacion&#10;https://sharepoint.../arquitectura.docx"></textarea>
+    </div>
+    <p class="nota" id="aviso-subidos" hidden></p>
+    <div class="acciones">
+      <button class="btn" id="btn-revisar-fuentes" type="button">Revisar los documentos</button>
+    </div>
+    <div id="tabla-fuentes" hidden></div>
+  </section>
+
+  <!-- 3 · el APM -->
+  <section class="etapa apagada" id="etapa-apm">
+    <h3><span class="num">3</span> Revisión del APM</h3>
+    <div class="campo">
+      <label for="sel-aplicativo">Aplicativo</label>
+      <select id="sel-aplicativo"></select>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="btn-analizar-apm" type="button">Analizar este aplicativo</button>
+    </div>
+    <div id="resultado-apm" hidden></div>
+  </section>
+
+  <section class="etapa" id="etapa-base">
+    <h3><span class="num">4</span> La base</h3>
+    <p class="nota">Lo que la aplicación ya sabe: la línea base del APM y los TDD,
+       los documentos leídos, y las decisiones que has tomado. Se puede exportar
+       para moverla a otra base de datos.</p>
+    <div id="estado-base"></div>
+    <div class="acciones">
+      <button class="btn btn-sec" id="btn-ver-base" type="button">Ver qué hay guardado</button>
+      <button class="btn btn-sec" id="btn-reporte-base" type="button">Reporte de avance</button>
+      <button class="btn btn-sec" id="btn-exportar-base" type="button">Exportar a JSON y CSV</button>
+    </div>
+    <p class="confirmacion" id="ok-base" hidden></p>
+    <div id="reporte-base" hidden></div>
+  </section>
+
+  <p class="error" id="error-conciliar" hidden></p>
+  <div class="acciones">
+    <a class="btn btn-sec" id="btn-volver-conciliar" href="/">Volver al inicio</a>
+  </div>
+</section>

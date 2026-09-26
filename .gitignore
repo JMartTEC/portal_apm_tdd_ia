@@ -1,0 +1,22 @@
+# Secretos -- nunca subir
+backend/.env
+
+# Entornos e instalaciones
+backend/venv/
+backend/.venv/
+**/__pycache__/
+*.pyc
+backend/.deps_ok
+
+# Datos reales del Tec -- nunca se suben al repo. La base y los documentos
+# fuente son informacion interna (TDD, APM, usuarios y roles); el repo solo
+# lleva el codigo. La app crea estas carpetas solas en el primer arranque.
+backend/datos/
+backend/docs/
+backend/_subidos/
+
+# Salidas generadas / temporales
+_ia-ready/
+*.log
+_push.log
+*.tar.gz
